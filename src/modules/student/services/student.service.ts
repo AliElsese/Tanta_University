@@ -5,6 +5,7 @@ import { Student } from "../models/student.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
+import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
 @Injectable()
 export class StudentService {
@@ -39,12 +40,17 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getStudents() {
-        const students = await this.StudentModel.find({ });
+    async getStudents(paginationDto: PaginationDto) {
+        const { page, limit } = paginationDto;
+        const skip = (page - 1) * limit;
+        const students = await this.StudentModel.find({ }).skip(skip).limit(limit);
         
         return {
             message: 'Students data.',
-            students
+            students,
+            totalPages: Math.ceil(students.length / limit),
+            currentPage: page,
+            totalStudents: students.length
         }
     }
 

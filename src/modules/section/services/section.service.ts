@@ -4,6 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Section } from "../models/section.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
+import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
 @Injectable()
 export class SectionService {
@@ -33,12 +34,17 @@ export class SectionService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getSections() {
-        const sections = await this.SectionModel.find({ });
+    async getSections(paginationDto: PaginationDto) {
+        const { page, limit } = paginationDto;
+        const skip = (page - 1) * limit;
+        const sections = await this.SectionModel.find({ }).skip(skip).limit(limit);
         
         return {
             message: 'Sections data.',
-            sections
+            sections,
+            totalPages: Math.ceil(sections.length / limit),
+            currentPage: page,
+            totalSections: sections.length
         }
     }
 

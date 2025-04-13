@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
 import { StudentService } from "../services/student.service";
 import { NewStudentDto } from "../dtos/newStudent.dto";
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
 @Controller('student')
 @ApiTags('student')
@@ -24,9 +25,11 @@ export class StudentController {
 
     @Get('findAll')
     @ApiOperation({ summary: 'Get students' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Students data' })
-    async findAll() {
-        return this.StudentService.getStudents();
+    async findAll(@Query() paginationDto: PaginationDto) {
+        return this.StudentService.getStudents(paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
