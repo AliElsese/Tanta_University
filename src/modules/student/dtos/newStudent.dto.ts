@@ -34,10 +34,10 @@ export class NewStudentDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
+    @IsString()
     @MinLength(11)
     @MaxLength(11)
-    phoneNumber: Number;
+    phoneNumber: string;
 
     @ApiProperty()
     @IsNotEmpty()

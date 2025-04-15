@@ -12,6 +12,7 @@ import { DoctorModule } from './modules/doctor/doctor.module';
 import { SectionModule } from './modules/section/section.module';
 import { YearModule } from './modules/year/year.module';
 import { SubjectModule } from './modules/subject/subject.module';
+import { DegreeModule } from './modules/degree/degree.module';
 
 @Module({
   imports: [
@@ -37,11 +38,12 @@ import { SubjectModule } from './modules/subject/subject.module';
     }),
     AuthModule,
     EmployeeModule,
-    StudentModule,
-    DoctorModule,
-    SubjectModule,
+    YearModule,
     SectionModule,
-    YearModule
+    SubjectModule,
+    DoctorModule,
+    StudentModule,
+    DegreeModule
   ],
   controllers: [AppController],
   providers: [AppService],

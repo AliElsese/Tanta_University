@@ -6,7 +6,7 @@ import { Document, Types } from "mongoose";
 })
 
 export class Section extends Document {
-    @Prop({  })
+    @Prop({ required: [true, 'Section name is required'] })
     name: string;
 
     @Prop({ type: Types.ObjectId, ref: 'Year' })
