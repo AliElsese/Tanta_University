@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
+import { SubjectDegreesDto } from "../dtos/subjectDegree.dto";
 
 @Injectable()
 export class DegreeService {
@@ -53,6 +54,19 @@ export class DegreeService {
         return {
             message: 'Student degrees',
             studentDegrees
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async subjectDegrees(subjectDegreesDto: SubjectDegreesDto) {
+        const { subjectId } = subjectDegreesDto;
+
+        const subjectDegrees = await this.DegreeModel.find({ subjectId }).populate({ path: 'studentId', select: 'name' });
+
+        return {
+            message: 'Subject degrees',
+            subjectDegrees
         }
     }
 
