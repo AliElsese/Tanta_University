@@ -33,7 +33,7 @@ export class DegreeService {
             throw new CustomError(400, 'This degree already exist.');
         }
 
-        const GBA = ((Number(subjectDegree) / subject.highestDegree) * 4).toFixed(2);
+        const GBA = ((Number(subjectDegree) / Number(subject.highestDegree)) * 4).toFixed(2);
 
         const newDegree = await this.DegreeModel.create({
             subjectDegree, GBA, studentId, subjectId, yearId

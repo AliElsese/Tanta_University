@@ -41,7 +41,7 @@ export class DoctorService {
     async getDoctors(paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const doctors = await this.DoctorModel.find({ }).skip(skip).limit(limit);
+        const doctors = await this.DoctorModel.find({ }).skip(skip).limit(limit).select({ _id: 1, name: 1, nationalId: 1, phoneNumber: 1, email: 1 });
         
         return {
             message: 'Doctors data.',

@@ -12,11 +12,11 @@ export class Subject extends Document {
     @Prop({ required: [true, 'Subject Code is required'] })
     code: string;
 
-    @Prop({ required: [true, 'Subject Hours is required'], default: 0 })
-    hoursNumber: Number;
+    @Prop({ required: [true, 'Subject Hours is required'], default: '0' })
+    hoursNumber: string;
 
     @Prop({ required: [true, 'Highest Degree is required'] })
-    highestDegree: number;
+    highestDegree: string;
 
     @Prop({ type: Types.ObjectId, ref: 'Doctor' })
     doctorId: Types.ObjectId;

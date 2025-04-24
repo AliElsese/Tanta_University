@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsEmail, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator";
+import { IsAlpha, IsEmail, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 import { Gender } from "../enums/student.enum";
 
 export class NewStudentDto {
@@ -24,11 +24,6 @@ export class NewStudentDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
-    code: Number;
-
-    @ApiProperty()
-    @IsNotEmpty()
     @IsString()
     universityId: string;
 
@@ -43,13 +38,6 @@ export class NewStudentDto {
     @IsNotEmpty()
     @IsEmail()
     email: string;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    @IsAlpha()
-    @MaxLength(100)
-    address: string;
 
     @ApiProperty()
     @IsNotEmpty()

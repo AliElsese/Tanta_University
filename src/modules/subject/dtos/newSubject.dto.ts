@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsEmail, IsMongoId, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator";
+import { IsAlpha, IsMongoId, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
 
 export class NewSubjectDto {
     @ApiProperty()
@@ -11,20 +11,20 @@ export class NewSubjectDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
+    @IsString()
     @MinLength(11)
     @MaxLength(11)
-    code: Number;
+    code: string;
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
-    hoursNumber: Number;
+    @IsString()
+    hoursNumber: string;
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
-    highestDegree: Number;
+    @IsString()
+    highestDegree: string;
 
     @ApiProperty()
     @IsNotEmpty()

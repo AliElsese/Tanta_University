@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
 import { YearService } from "../services/year.service";
 import { NewYearDto } from "../dtos/newYear.dto";
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
 @Controller('year')
+@ApiTags('year')
 export class YearController {
     constructor(
         private YearService: YearService

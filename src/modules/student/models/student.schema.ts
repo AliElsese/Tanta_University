@@ -16,9 +16,6 @@ export class Student extends Document {
     @Prop({ required: [true, 'Gender is required'], enum: Gender })
     gender: Gender;
 
-    @Prop({ required: [true, 'Student code is required'] })
-    code: Number;
-
     @Prop({ required: [true, 'Student University ID is required'] })
     universityId: string;
     
@@ -31,11 +28,8 @@ export class Student extends Document {
     @Prop({ required: [true, 'Password is required'] })
     passwordHash: string;
 
-    @Prop({ default: '' })
+    @Prop({ required: [true, 'Email is required'], default: '' })
     email: string;
-
-    @Prop({ default: '' })
-    address: string;
 
     @Prop({ type: Types.ObjectId, ref: 'Section' })
     sectionId: Types.ObjectId;

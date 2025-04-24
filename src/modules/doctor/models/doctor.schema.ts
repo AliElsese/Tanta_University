@@ -12,19 +12,19 @@ export class Doctor extends Document {
     @Prop({ required: [true, 'Doctor name is required'] })
     name: string;
 
-    @Prop({ required: [true, 'Major is required'] })
+    @Prop({ default: '' })
     major: string;
 
     @Prop({ default: '' })
     profileImageKey?: string;
     
-    @Prop({ default: '' })
+    @Prop({ required: [true, 'Phone number is required'], default: '' })
     phoneNumber: string;
 
     @Prop({ required: [true, 'Password is required'] })
     passwordHash: string;
 
-    @Prop({ default: '' })
+    @Prop({ required: [true, 'Email is required'], default: '' })
     email: string;
 }
 

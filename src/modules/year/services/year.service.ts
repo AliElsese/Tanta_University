@@ -35,7 +35,7 @@ export class YearService {
     async getYears(paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const years = await this.YearModel.find({ }).skip(skip).limit(limit);
+        const years = await this.YearModel.find({ }).skip(skip).limit(limit).select({ _id: 1, name: 1 });
         
         return {
             message: 'Years data.',
