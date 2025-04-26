@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
+import { SubjectTerm } from "../enums/subject.enum";
 
 @Schema({
     timestamps: true
@@ -17,6 +18,9 @@ export class Subject extends Document {
 
     @Prop({ required: [true, 'Highest Degree is required'] })
     highestDegree: string;
+
+    @Prop({ required: [true, 'Term is required'], enum: SubjectTerm })
+    term: SubjectTerm;
 
     @Prop({ type: Types.ObjectId, ref: 'Doctor' })
     doctorId: Types.ObjectId;

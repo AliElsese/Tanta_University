@@ -17,9 +17,6 @@ export class Degree extends Document {
 
     @Prop({ type: Types.ObjectId, ref: 'Student' })
     studentId: Types.ObjectId;
-
-    @Prop({ type: Types.ObjectId, ref: 'Year' })
-    yearId: Types.ObjectId;
 }
 
 export const DegreeSchema = SchemaFactory.createForClass(Degree);

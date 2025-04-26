@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsMongoId, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import { IsAlpha, IsEnum, IsMongoId, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import { SubjectTerm } from "../enums/subject.enum";
 
 export class NewSubjectDto {
     @ApiProperty()
@@ -25,6 +26,11 @@ export class NewSubjectDto {
     @IsNotEmpty()
     @IsString()
     highestDegree: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsEnum(SubjectTerm, { message: 'Subject Term must be one of the allowed terms.' })
+    term: SubjectTerm;
 
     @ApiProperty()
     @IsNotEmpty()

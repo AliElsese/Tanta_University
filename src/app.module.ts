@@ -13,6 +13,9 @@ import { SectionModule } from './modules/section/section.module';
 import { YearModule } from './modules/year/year.module';
 import { SubjectModule } from './modules/subject/subject.module';
 import { DegreeModule } from './modules/degree/degree.module';
+import { SubSectionModule } from './modules/subsection/subsection.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './modules/shared/guards/roles.guard';
 
 @Module({
   imports: [
@@ -40,12 +43,15 @@ import { DegreeModule } from './modules/degree/degree.module';
     EmployeeModule,
     YearModule,
     SectionModule,
+    SubSectionModule,
     SubjectModule,
     DoctorModule,
     StudentModule,
     DegreeModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,
+    { provide: APP_GUARD, useClass: RolesGuard }
+  ],
 })
 export class AppModule {}

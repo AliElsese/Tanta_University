@@ -7,11 +7,11 @@ import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
-interface PopulatedYear {
+export interface PopulatedYear {
     name: string;
 }
 
-interface PopulatedSection {
+export interface PopulatedSection {
     name: string;
 }
 
@@ -27,7 +27,13 @@ export class StudentService {
     async addStudent(studentDto: NewStudentDto) {
         const { name, nationalId, gender, universityId, phoneNumber, email, sectionId, yearId } = studentDto;
 
-        const userExist = await this.StudentModel.findOne({ nationalId, universityId, email });
+        const userExist = await this.StudentModel.findOne({
+            $or: [
+                { nationalId },
+                { universityId },
+                { email }
+            ]
+        });
         if(userExist) {
             throw new CustomError(400, 'This user already exist.');
         }
@@ -84,15 +90,30 @@ export class StudentService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getStudent(studentId: string) {
-        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) });
+        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
+            .populate<{ sectionId: PopulatedSection }>('sectionId', { _id: 0, name: 1 })
+            .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
+            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, sectionId: 1, yearId: 1 });
 
         if(!student) {
             throw new CustomError(404, 'Student not found.');
         }
 
+        const newStudent = {
+            _id: student._id,
+            name: student.name,
+            nationalId: student.nationalId,
+            gender: student.gender,
+            universityId: student.universityId,
+            phoneNumber: student.phoneNumber,
+            email: student.email,
+            sectionName: student.sectionId.name,
+            yearName: student.yearId.name
+        }
+
         return {
             message: 'Student data.',
-            student
+            newStudent
         }
     }
 

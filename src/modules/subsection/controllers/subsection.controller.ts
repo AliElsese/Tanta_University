@@ -1,28 +1,28 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
-import { SubjectService } from "../services/subject.service";
-import { NewSubjectDto } from "../dtos/newSubject.dto";
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags, ApiBearerAuth, ApiHeader } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { SubSectionService } from "../services/subsection.service";
+import { NewSubSectionDto } from "../dtos/newSubSection";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
+import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
-import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 
-@Controller('subject')
-@ApiTags('subject')
+@Controller('subsection')
+@ApiTags('subsection')
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Roles(UserRole.EMPLOYEE)
-export class SubjectController {
+export class SubSectionController {
     constructor(
-        private SubjectService: SubjectService
+        private SubSectionService: SubSectionService
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Post('createSubject')
-    @ApiOperation({ summary: 'Create subject' })
-    @ApiBody({ description: 'Subject inputs', type: NewSubjectDto })
-    @ApiResponse({ status: 201, description: 'Subject added successfully' })
+    @Post('createSection')
+    @ApiOperation({ summary: 'Create section' })
+    @ApiBody({ description: 'Section inputs', type: NewSubSectionDto })
+    @ApiResponse({ status: 201, description: 'Section added successfully' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiHeader({
         name: 'Authorization',
@@ -33,17 +33,17 @@ export class SubjectController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async createSubject(@Body() subjectDto: NewSubjectDto) {
-        return this.SubjectService.addSubject(subjectDto);
+    async createSection(@Body() sectionDto: NewSubSectionDto) {
+        return this.SubSectionService.addSection(sectionDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Get('findAll')
-    @ApiOperation({ summary: 'Get subjects' })
+    @ApiOperation({ summary: 'Get sections' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
-    @ApiResponse({ status: 200, description: 'Subjects data' })
+    @ApiResponse({ status: 200, description: 'Sections data' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiHeader({
         name: 'Authorization',
@@ -54,17 +54,16 @@ export class SubjectController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Query() paginationDto: PaginationDto, @Req() { user }) {
-        console.log(user)
-        return this.SubjectService.getSubjects(paginationDto);
+    async findAll(@Query() paginationDto: PaginationDto) {
+        return this.SubSectionService.getSections(paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Get('findOne/:id')
-    @ApiOperation({ summary: 'Get subject' })
-    @ApiParam({ name: 'id', required: true, description: 'The ID of the subject' })
-    @ApiResponse({ status: 200, description: 'Subject data' })
+    @ApiOperation({ summary: 'Get section' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
+    @ApiResponse({ status: 200, description: 'Section data' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiHeader({
         name: 'Authorization',
@@ -75,16 +74,16 @@ export class SubjectController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findOne(@Param() subjectId: string) {
-        return this.SubjectService.getSubject(subjectId);
+    async findOne(@Param() sectionId: string) {
+        return this.SubSectionService.getSection(sectionId);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Delete('deleteOne/:id')
-    @ApiOperation({ summary: 'Delete subject' })
-    @ApiParam({ name: 'id', required: true, description: 'The ID of the subject' })
-    @ApiResponse({ status: 200, description: 'Subject deleted successfully' })
+    @ApiOperation({ summary: 'Delete section' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
+    @ApiResponse({ status: 200, description: 'Section deleted successfully' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiHeader({
         name: 'Authorization',
@@ -95,7 +94,7 @@ export class SubjectController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async deleteOne(@Param() subjectId: string) {
-        return this.SubjectService.removeSubject(subjectId);
+    async deleteOne(@Param() sectionId: string) {
+        return this.SubSectionService.removeSection(sectionId);
     }
 }

@@ -6,6 +6,9 @@ import { DoctorSchema } from "../doctor/models/doctor.schema";
 import { EmployeeSchema } from "../employee/models/employee.schema";
 import { StudentSchema } from "../student/models/student.schema";
 import { AuthController } from "./controllers/auth.controller";
+import { EmployeeService } from "../employee/services/employee.service";
+import { DoctorService } from "../doctor/services/doctor.service";
+import { StudentService } from "../student/services/student.service";
 
 @Module({
     imports: [
@@ -16,7 +19,7 @@ import { AuthController } from "./controllers/auth.controller";
         ])
     ],
     controllers: [AuthController],
-    providers: [JWTService, AuthService]
+    providers: [JWTService, AuthService, EmployeeService, DoctorService, StudentService]
 })
 
 export class AuthModule {}

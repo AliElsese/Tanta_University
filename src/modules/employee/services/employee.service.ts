@@ -19,7 +19,12 @@ export class EmployeeService {
     async addEmployee(employeeDto: NewEmployeeDto) {
         const { name, nationalId, phoneNumber, email } = employeeDto;
 
-        const userExist = await this.EmployeeModel.findOne({ nationalId, email });
+        const userExist = await this.EmployeeModel.findOne({ 
+            $or: [
+                { nationalId },
+                { email }
+            ]
+        });
         if(userExist) {
             throw new CustomError(400, 'This user already exist.');
         }
@@ -55,7 +60,7 @@ export class EmployeeService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getEmployee(employeeId: string) {
-        const employee = await this.EmployeeModel.findById({ _id: new mongoose.Types.ObjectId(employeeId) });
+        const employee = await this.EmployeeModel.findById({ _id: new mongoose.Types.ObjectId(employeeId) }).select(['-passwordHash', '-createdAt', '-updatedAt', '-__v']);
 
         if(!employee) {
             throw new CustomError(404, 'Employee not found.');

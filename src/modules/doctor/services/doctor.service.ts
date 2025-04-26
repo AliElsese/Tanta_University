@@ -19,7 +19,12 @@ export class DoctorService {
     async addDoctor(doctorDto: NewDoctorDto) {
         const { name, nationalId, major, phoneNumber, email } = doctorDto;
 
-        const userExist = await this.DoctorModel.findOne({ nationalId, email });
+        const userExist = await this.DoctorModel.findOne({ 
+            $or: [
+                { nationalId },
+                { email }
+            ]
+        });
         if(userExist) {
             throw new CustomError(400, 'This user already exist.');
         }
@@ -55,7 +60,7 @@ export class DoctorService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getDoctor(doctorId: string) {
-        const doctor = await this.DoctorModel.findById({ _id: new mongoose.Types.ObjectId(doctorId) });
+        const doctor = await this.DoctorModel.findById({ _id: new mongoose.Types.ObjectId(doctorId) }).select({ _id: 1, name: 1, nationalId: 1, phoneNumber: 1, email: 1 });
 
         if(!doctor) {
             throw new CustomError(404, 'Doctor not found.');
@@ -79,5 +84,43 @@ export class DoctorService {
         return {
             message: 'Doctor deleted successfully.'
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async updateDoctor(doctorId: string, updateData: Partial<NewDoctorDto>) {
+        const { nationalId, email } = updateData;
+
+        // Check if the doctor exists
+        const existingDoctor = await this.DoctorModel.findById(doctorId);
+        if (!existingDoctor) {
+            throw new CustomError(404, 'Doctor not found.');
+        }
+
+        // If nationalId or email is being updated, check for duplicates
+        if (nationalId || email) {
+            const duplicateDoctor = await this.DoctorModel.findOne({
+                $or: [
+                    { nationalId: nationalId || existingDoctor.nationalId },
+                    { email: email || existingDoctor.email }
+                ],
+                _id: { $ne: doctorId } // Exclude the current doctor from the check
+            });
+
+            if (duplicateDoctor) {
+                throw new CustomError(400, 'A doctor with this national ID or email already exists.');
+            }
+        }
+
+        const updatedDoctor = await this.DoctorModel.findByIdAndUpdate(
+            doctorId,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
+
+        return {
+            message: 'Doctor updated successfully.',
+            doctor: updatedDoctor
+        };
     }
 }
