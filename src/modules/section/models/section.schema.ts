@@ -8,9 +8,6 @@ import { Document, Types } from "mongoose";
 export class Section extends Document {
     @Prop({ required: [true, 'Section name is required'] })
     name: string;
-
-    @Prop({ type: Types.ObjectId, ref: 'Year' })
-    yearId: Types.ObjectId;
 }
 
 export const SectionSchema = SchemaFactory.createForClass(Section);

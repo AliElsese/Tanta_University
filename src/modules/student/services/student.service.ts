@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { NewStudentDto } from "../dtos/newStudent.dto";
+import { UpdateStudentDto } from "../dtos/updateStudent.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Student } from "../models/student.schema";
 import mongoose from "mongoose";
@@ -8,10 +9,6 @@ import * as bcrypt from 'bcrypt';
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
 export interface PopulatedYear {
-    name: string;
-}
-
-export interface PopulatedSection {
     name: string;
 }
 
@@ -31,11 +28,12 @@ export class StudentService {
             $or: [
                 { nationalId },
                 { universityId },
-                { email }
+                { email },
+                { phoneNumber }
             ]
         });
         if(userExist) {
-            throw new CustomError(400, 'This user already exist.');
+            throw new CustomError(400, 'This national ID, email, university ID or phone number already exists.');
         }
 
         const hashedPassword = await bcrypt.hash('123456', 12);
@@ -54,15 +52,14 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getStudents(paginationDto: PaginationDto) {
+    async getStudents(sectionId: string, paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const students = await this.StudentModel.find({ })
+        const students = await this.StudentModel.find({ sectionId })
             .skip(skip)
             .limit(limit)
-            .populate<{ sectionId: PopulatedSection }>('sectionId', { _id: 0, name: 1 })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, sectionId: 1, yearId: 1 });
+            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, yearId: 1 });
         
         const newStudents = students.map((student) => {
             return {
@@ -73,7 +70,6 @@ export class StudentService {
                 universityId: student.universityId,
                 phoneNumber: student.phoneNumber,
                 email: student.email,
-                sectionName: student.sectionId.name,
                 yearName: student.yearId.name
             }
         })
@@ -91,9 +87,8 @@ export class StudentService {
 
     async getStudent(studentId: string) {
         const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
-            .populate<{ sectionId: PopulatedSection }>('sectionId', { _id: 0, name: 1 })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, sectionId: 1, yearId: 1 });
+            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, yearId: 1 });
 
         if(!student) {
             throw new CustomError(404, 'Student not found.');
@@ -107,7 +102,6 @@ export class StudentService {
             universityId: student.universityId,
             phoneNumber: student.phoneNumber,
             email: student.email,
-            sectionName: student.sectionId.name,
             yearName: student.yearId.name
         }
 
@@ -117,6 +111,39 @@ export class StudentService {
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async updateStudent(studentId: string, studentDto: UpdateStudentDto) {
+        const { name, nationalId, universityId, phoneNumber, email } = studentDto;
+
+        const studentExist = await this.StudentModel.findOne({ 
+            $or: [
+                { nationalId, _id: { $ne: new mongoose.Types.ObjectId(studentId) } },
+                { email, _id: { $ne: new mongoose.Types.ObjectId(studentId) } },
+                { universityId, _id: { $ne: new mongoose.Types.ObjectId(studentId) } },
+                { phoneNumber, _id: { $ne: new mongoose.Types.ObjectId(studentId) } }
+            ]
+        });
+        
+        if(studentExist) {
+            throw new CustomError(400, 'This national ID, email, university ID or phone number already exists.');
+        }
+
+        const updatedStudent = await this.StudentModel.findByIdAndUpdate(
+            { _id: new mongoose.Types.ObjectId(studentId) },
+            { name, nationalId, universityId, phoneNumber, email },
+            { new: true }
+        ).select({ _id: 1, name: 1, nationalId: 1, universityId: 1, phoneNumber: 1, email: 1 });
+
+        if(!updatedStudent) {
+            throw new CustomError(404, 'Student not found.');
+        }
+
+        return {
+            message: 'Student updated successfully.'
+        }
+    }
+    
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async removeStudent(studentId: string) {

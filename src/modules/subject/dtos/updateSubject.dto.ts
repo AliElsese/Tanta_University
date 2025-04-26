@@ -1,11 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsNotEmpty, IsString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
-export class NewSectionDto {
+export class UpdateSubjectDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    @IsAlpha()
     @MaxLength(50)
     name: string;
-}
+} 

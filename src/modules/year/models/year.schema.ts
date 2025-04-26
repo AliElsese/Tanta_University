@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 @Schema({
     timestamps: true
@@ -8,6 +8,9 @@ import { Document } from "mongoose";
 export class Year extends Document {
     @Prop({ required: [true, 'Year name is required'] })
     name: string;
+
+    @Prop({ type: Types.ObjectId, ref: 'Section' })
+    sectionId: Types.ObjectId;
 }
 
 export const YearSchema = SchemaFactory.createForClass(Year);

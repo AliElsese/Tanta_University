@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { StudentService } from "../services/student.service";
 import { NewStudentDto } from "../dtos/newStudent.dto";
+import { UpdateStudentDto } from "../dtos/updateStudent.dto";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
@@ -39,8 +40,9 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Get('findAll')
+    @Get('findAll/:id')
     @ApiOperation({ summary: 'Get students' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Students data' })
@@ -54,8 +56,8 @@ export class StudentController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Query() paginationDto: PaginationDto) {
-        return this.StudentService.getStudents(paginationDto);
+    async findAll(@Param() sectionId: string, @Query() paginationDto: PaginationDto) {
+        return this.StudentService.getStudents(sectionId, paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +78,29 @@ export class StudentController {
     })
     async findOne(@Param() studentId: string) {
         return this.StudentService.getStudent(studentId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Put('updateOne/:id')
+    @ApiOperation({ summary: 'Update student' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the student' })
+    @ApiBody({ description: 'Student update inputs', type: UpdateStudentDto })
+    @ApiResponse({ status: 200, description: 'Student updated successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiResponse({ status: 404, description: 'Student not found' })
+    @ApiResponse({ status: 400, description: 'National ID, email, university ID or phone number already exists' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async updateOne(@Param('id') studentId: string, @Body() studentDto: UpdateStudentDto) {
+        return this.StudentService.updateStudent(studentId, studentDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

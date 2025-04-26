@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { SectionService } from "../services/section.service";
 import { NewSectionDto } from "../dtos/newSection";
+import { UpdateSectionDto } from "../dtos/updateSection";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
@@ -80,6 +81,29 @@ export class SectionController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Put('updateOne/:id')
+    @ApiOperation({ summary: 'Update section' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
+    @ApiBody({ description: 'Section update inputs', type: UpdateSectionDto })
+    @ApiResponse({ status: 200, description: 'Section updated successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiResponse({ status: 404, description: 'Section not found' })
+    @ApiResponse({ status: 400, description: 'Section name already exists' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async updateOne(@Param('id') sectionId: string, @Body() sectionDto: UpdateSectionDto) {
+        return this.SectionService.updateSection(sectionId, sectionDto);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     @Delete('deleteOne/:id')
     @ApiOperation({ summary: 'Delete section' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
@@ -97,4 +121,6 @@ export class SectionController {
     async deleteOne(@Param() sectionId: string) {
         return this.SectionService.removeSection(sectionId);
     }
+
+    
 }

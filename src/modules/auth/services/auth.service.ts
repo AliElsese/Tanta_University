@@ -102,7 +102,7 @@ export class AuthService {
 
             return {
                 message: user.message,
-                employee: user.employee,
+                data: user.employee,
                 role
             }
         }
@@ -114,7 +114,7 @@ export class AuthService {
 
             return {
                 message: user.message,
-                doctor: user.doctor,
+                data: user.doctor,
                 role
             }
         }
@@ -126,7 +126,7 @@ export class AuthService {
 
             return {
                 message: user.message,
-                student: user.newStudent,
+                data: user.newStudent,
                 role
             }
         }

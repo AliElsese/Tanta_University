@@ -36,6 +36,9 @@ export class Student extends Document {
 
     @Prop({ type: Types.ObjectId, ref: 'Year' })
     yearId: Types.ObjectId;
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Subject' }], default: [] })
+    subjectIds: Types.ObjectId[];
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);

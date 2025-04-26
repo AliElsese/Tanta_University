@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 @Schema({
     timestamps: true
@@ -26,6 +26,9 @@ export class Doctor extends Document {
 
     @Prop({ required: [true, 'Email is required'], default: '' })
     email: string;
+
+    @Prop({ type: Types.ObjectId, ref: 'Section' })
+    sectionId: Types.ObjectId;
 }
 
 export const DoctorSchema = SchemaFactory.createForClass(Doctor);

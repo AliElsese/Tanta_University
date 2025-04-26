@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { YearService } from "../services/year.service";
 import { NewYearDto } from "../dtos/newYear.dto";
+import { UpdateYearDto } from "../dtos/updateYear.dto";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
@@ -39,8 +40,9 @@ export class YearController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Get('findAll')
+    @Get('findAll/:id')
     @ApiOperation({ summary: 'Get years' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Years data' })
@@ -54,8 +56,8 @@ export class YearController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Query() paginationDto: PaginationDto) {
-        return this.YearService.getYears(paginationDto);
+    async findAll(@Param() sectionId: string, @Query() paginationDto: PaginationDto) {
+        return this.YearService.getYears(sectionId, paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +78,29 @@ export class YearController {
     })
     async findOne(@Param() yearId: string) {
         return this.YearService.getYear(yearId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Put('updateOne/:id')
+    @ApiOperation({ summary: 'Update year' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the year' })
+    @ApiBody({ description: 'Year update inputs', type: UpdateYearDto })
+    @ApiResponse({ status: 200, description: 'Year updated successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiResponse({ status: 404, description: 'Year not found' })
+    @ApiResponse({ status: 400, description: 'Year name already exists' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async updateOne(@Param('id') yearId: string, @Body() yearDto: UpdateYearDto) {
+        return this.YearService.updateYear(yearId, yearDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

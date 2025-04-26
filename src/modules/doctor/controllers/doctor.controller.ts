@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { DoctorService } from "../services/doctor.service";
 import { NewDoctorDto } from "../dtos/newDoctor.dto";
+import { UpdateDoctorDto } from "../dtos/updateDoctor.dto";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
@@ -39,8 +40,9 @@ export class DoctorController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Get('findAll')
+    @Get('findAll/:id')
     @ApiOperation({ summary: 'Get doctors' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Doctors data' })
@@ -54,8 +56,8 @@ export class DoctorController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Query() paginationDto: PaginationDto) {
-        return this.DoctorService.getDoctors(paginationDto);
+    async findAll(@Param() sectionId: string, @Query() paginationDto: PaginationDto) {
+        return this.DoctorService.getDoctors(sectionId, paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +78,29 @@ export class DoctorController {
     })
     async findOne(@Param() doctorId: string) {
         return this.DoctorService.getDoctor(doctorId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Put('updateOne/:id')
+    @ApiOperation({ summary: 'Update doctor' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the doctor' })
+    @ApiBody({ description: 'Doctor update inputs', type: UpdateDoctorDto })
+    @ApiResponse({ status: 200, description: 'Doctor updated successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiResponse({ status: 404, description: 'Doctor not found' })
+    @ApiResponse({ status: 400, description: 'Doctor name already exists' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async updateOne(@Param('id') doctorId: string, @Body() doctorDto: UpdateDoctorDto) {
+        return this.DoctorService.updateDoctor(doctorId, doctorDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

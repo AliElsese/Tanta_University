@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { NewSubjectDto } from "../dtos/newSubject.dto";
+import { UpdateSubjectDto } from "../dtos/updateSubject.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Subject } from "../models/subject.schema";
 import mongoose from "mongoose";
@@ -8,10 +9,6 @@ import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Student } from "src/modules/student/models/student.schema";
 
 export interface PopulatedYear {
-    name: string;
-}
-
-export interface PopulatedSection {
     name: string;
 }
 
@@ -51,16 +48,15 @@ export class SubjectService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getSubjects(paginationDto: PaginationDto) {
+    async getSubjects(sectionId: string, paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const subjects = await this.SubjectModel.find({ })
+        const subjects = await this.SubjectModel.find({ sectionId })
             .skip(skip)
             .limit(limit)
             .populate<{ doctorId: PopulatedDoctor }>('doctorId', { _id: 0, name: 1 })
-            .populate<{ sectionId: PopulatedSection }>('sectionId', { _id: 0, name: 1 })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, doctorId: 1, sectionId: 1, yearId: 1 });
+            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, doctorId: 1, yearId: 1 });
         
         const newSubjects = subjects.map((subject) => {
             return {
@@ -70,7 +66,6 @@ export class SubjectService {
                 hoursNumber: subject.hoursNumber,
                 highestDegree: subject.highestDegree,
                 doctorName: subject.doctorId.name,
-                sectionName: subject.sectionId.name,
                 yearName: subject.yearId.name
             }
         })
@@ -89,9 +84,8 @@ export class SubjectService {
     async getSubject(subjectId: string) {
         const subject = await this.SubjectModel.findById({ _id: new mongoose.Types.ObjectId(subjectId) })
             .populate<{ doctorId: PopulatedDoctor }>('doctorId', { _id: 0, name: 1 })
-            .populate<{ sectionId: PopulatedSection }>('sectionId', { _id: 0, name: 1 })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, doctorId: 1, sectionId: 1, yearId: 1 });
+            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, doctorId: 1, yearId: 1 });
 
         if(!subject) {
             throw new CustomError(404, 'Subject not found.');
@@ -104,13 +98,37 @@ export class SubjectService {
             hoursNumber: subject.hoursNumber,
             highestDegree: subject.highestDegree,
             doctorName: subject.doctorId.name,
-            sectionName: subject.sectionId.name,
             yearName: subject.yearId.name
         }
 
         return {
             message: 'Subject data.',
             newSubject
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async updateSubject(subjectId: string, subjectDto: UpdateSubjectDto) {
+        const { name } = subjectDto;
+
+        const subjectExist = await this.SubjectModel.findOne({ name });
+        if(subjectExist && subjectExist._id.toString() !== subjectId) {
+            throw new CustomError(400, 'This subject name already exists.');
+        }
+
+        const updatedSubject = await this.SubjectModel.findByIdAndUpdate(
+            { _id: new mongoose.Types.ObjectId(subjectId) },
+            { name },
+            { new: true }
+        ).select({ _id: 1, name: 1 });
+
+        if(!updatedSubject) {
+            throw new CustomError(404, 'Subject not found.');
+        }
+
+        return {
+            message: 'Subject updated successfully.'
         }
     }
 
@@ -130,18 +148,44 @@ export class SubjectService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getSubjectStudents(subjectId: string) {
-        const subject = await this.SubjectModel.findById({ _id: new mongoose.Types.ObjectId(subjectId) });
+    async addSubjectToStudent(studentId: string, subjectId: string) {
+        const student = await this.StudentModel.findByIdAndUpdate(
+            { _id: new mongoose.Types.ObjectId(studentId) },
+            { $push: { subjectIds: new mongoose.Types.ObjectId(subjectId) } },
+            { new: true }
+        );
 
-        if(!subject) {
+        if(!student) {
+            throw new CustomError(404, 'Student not found.');
+        }
+
+        return {
+            message: 'Subject added to student successfully.'
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async getSubjectStudents(subjectId: string, paginationDto: PaginationDto) {
+        const { page, limit } = paginationDto;
+        const skip = (page - 1) * limit;
+
+        const subject = await this.SubjectModel.findById(subjectId);
+        if (!subject) {
             throw new CustomError(404, 'Subject not found.');
         }
 
-        const students = await this.StudentModel.find({ sectionId: subject.sectionId }).select({ _id: 1, name: 1, code: 1 });
+        const students = await this.StudentModel.find({ subjectIds: { $in: [new mongoose.Types.ObjectId(subjectId)] } })
+            .skip(skip)
+            .limit(limit)
+            .select({ _id: 1, name: 1 });
 
         return {
-            message: 'Subject students data.',
-            students
+            message: 'Students enrolled in this subject.',
+            students,
+            totalPages: Math.ceil(students.length / limit),
+            currentPage: page,
+            totalStudents: students.length
         }
     }
 }

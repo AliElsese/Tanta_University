@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsAlpha, IsEmail, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 
 export class NewDoctorDto {
     @ApiProperty()
@@ -33,4 +33,9 @@ export class NewDoctorDto {
     @IsNotEmpty()
     @IsEmail()
     email: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsMongoId()
+    sectionId: string;
 }
