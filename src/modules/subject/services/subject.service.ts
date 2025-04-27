@@ -46,7 +46,9 @@ export class SubjectService {
 
         const newSubject = await this.SubjectModel.create({
             name, code, hoursNumber, highestDegree, term,
-            doctorId, sectionId: section._id, yearId
+            doctorId: new mongoose.Types.ObjectId(doctorId),
+            sectionId: section._id,
+            yearId: new mongoose.Types.ObjectId(yearId)
         });
 
         return {
@@ -199,10 +201,7 @@ export class SubjectService {
                     subjectsIds: { $in: [subject._id] }
                 }
             }
-        })
-        .skip(skip)
-        .limit(limit)
-        .select({ _id: 1, name: 1, universityId: 1 });
+        }).skip(skip).limit(limit).select({ _id: 1, name: 1, universityId: 1 });
 
         return {
             message: 'Students enrolled in this subject.',
