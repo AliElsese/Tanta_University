@@ -8,6 +8,7 @@ import { CustomError } from "src/modules/shared/helpers/customError";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Student } from "src/modules/student/models/student.schema";
 import { Section } from "src/modules/section/models/section.schema";
+
 export interface PopulatedYear {
     name: string;
 }
@@ -160,6 +161,7 @@ export class SubjectService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    // Add subjects to student
     async addSubjectToStudent(studentId: string, subjectId: string) {
         const student = await this.StudentModel.findByIdAndUpdate(
             { _id: new mongoose.Types.ObjectId(studentId) },
@@ -178,6 +180,7 @@ export class SubjectService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    // Get students enrolled in a subject
     async getSubjectStudents(subjectId: string, paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;

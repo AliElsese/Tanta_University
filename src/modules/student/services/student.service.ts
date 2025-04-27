@@ -8,8 +8,11 @@ import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
+import { Subject } from "src/modules/subject/models/subject.schema";
+import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
 
 export interface PopulatedYear {
+    _id: mongoose.Types.ObjectId;
     name: string;
 }
 
@@ -20,7 +23,10 @@ export class StudentService {
         private StudentModel: mongoose.Model<Student>,
 
         @InjectModel(Section.name)
-        private SectionModel: mongoose.Model<Section>
+        private SectionModel: mongoose.Model<Section>,
+
+        @InjectModel(Subject.name)
+        private SubjectModel: mongoose.Model<Subject>
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -46,11 +52,29 @@ export class StudentService {
 
         const hashedPassword = await bcrypt.hash('123456', 12);
 
+        const subjectsIdsFirstTerm = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId), term: SubjectTerm.FirstTerm }).select({ _id: 1 });
+        const subjectsIdsSecondTerm = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId), term: SubjectTerm.SecondTerm }).select({ _id: 1 });
+        
+        const studentSubjects = [
+            {
+                yearId: new mongoose.Types.ObjectId(yearId),
+                term: SubjectTerm.FirstTerm,
+                subjectsIds: subjectsIdsFirstTerm
+            },
+            {
+                yearId: new mongoose.Types.ObjectId(yearId),
+                term: SubjectTerm.SecondTerm,
+                subjectsIds: subjectsIdsSecondTerm
+            }
+        ]
+
         const newStudent = await this.StudentModel.create({
             name, nationalId, gender, universityId,
             passwordHash: hashedPassword,
             phoneNumber, email,
-            sectionId: section._id, yearId
+            sectionId: section._id,
+            yearIds: [new mongoose.Types.ObjectId(yearId)],
+            academicYears: studentSubjects
         });
 
         return {
@@ -71,8 +95,8 @@ export class StudentService {
         const students = await this.StudentModel.find({ sectionId: section._id })
             .skip(skip)
             .limit(limit)
-            .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, yearId: 1 });
+            .populate<{ yearIds: PopulatedYear[] }>('yearIds', { _id: 0, name: 1 })
+            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, yearIds: 1 });
         
         const newStudents = students.map((student) => {
             return {
@@ -83,7 +107,7 @@ export class StudentService {
                 universityId: student.universityId,
                 phoneNumber: student.phoneNumber,
                 email: student.email,
-                yearName: student.yearId.name
+                yearName: student.yearIds[student.yearIds.length - 1]?.name || ''
             }
         })
 
@@ -100,8 +124,7 @@ export class StudentService {
 
     async getStudent(studentId: string) {
         const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
-            .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, yearId: 1 });
+            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1 });
 
         if(!student) {
             throw new CustomError(404, 'Student not found.');
@@ -114,8 +137,7 @@ export class StudentService {
             gender: student.gender,
             universityId: student.universityId,
             phoneNumber: student.phoneNumber,
-            email: student.email,
-            yearName: student.yearId.name
+            email: student.email
         }
 
         return {

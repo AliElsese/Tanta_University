@@ -1,6 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 import { Gender } from "../enums/student.enum";
+import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
+
+interface AcademicYear {
+    yearId: Types.ObjectId;
+    term: string;
+    subjectsIds: Types.ObjectId[];
+}
 
 @Schema({
     timestamps: true
@@ -34,11 +41,15 @@ export class Student extends Document {
     @Prop({ required: [true, 'Section is required'], type: Types.ObjectId, ref: 'Section' })
     sectionId: Types.ObjectId;
 
-    @Prop({ required: [true, 'Year is required'], type: Types.ObjectId, ref: 'Year' })
-    yearId: Types.ObjectId;
+    @Prop({ required: [true, 'Year is required'], type: [{ type: Types.ObjectId, ref: 'Year' }], default: [] })
+    yearIds: Types.ObjectId[];
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'Subject' }], default: [] })
-    subjectIds: Types.ObjectId[];
+    @Prop({ required: [true, 'Academic years are required'], type: [{
+        yearId: { type: Types.ObjectId, ref: 'Year' },
+        term: { type: String, enum: SubjectTerm },
+        subjectsIds: [{ type: Types.ObjectId, ref: 'Subject' }]
+    }], default: [] })
+    academicYears: AcademicYear[];
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);
