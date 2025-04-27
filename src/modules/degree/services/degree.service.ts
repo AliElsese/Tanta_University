@@ -8,6 +8,11 @@ import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
 import { SubjectDegreesDto } from "../dtos/subjectDegree.dto";
 
+interface StudentDegree {
+    studentId: string;
+    subjectDegree: string;
+}
+
 @Injectable()
 export class DegreeService {
     constructor(
@@ -21,26 +26,36 @@ export class DegreeService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addDegree(degreeDto: NewDegreeDto) {
-        const { subjectDegree, studentId, subjectId, yearId } = degreeDto;
+        const { studentDegrees, subjectId, highestDegree } = degreeDto;
 
         const subject = await this.SubjectModel.findById(subjectId);
         if(!subject) {
             throw new CustomError(404, 'This subject not found.');
         }
 
-        const degreeExist = await this.DegreeModel.findOne({ studentId, subjectId });
-        if(degreeExist) {
-            throw new CustomError(400, 'This degree already exist.');
-        }
-
-        const GBA = ((Number(subjectDegree) / Number(subject.highestDegree)) * 4).toFixed(2);
-
-        const newDegree = await this.DegreeModel.create({
-            subjectDegree, GBA, studentId, subjectId, yearId
+        // Check if any of the degrees already exist
+        const existingDegrees = await this.DegreeModel.find({
+            subjectId,
+            studentId: { $in: studentDegrees.map(sd => new mongoose.Types.ObjectId(sd.studentId)) }
         });
 
+        if(existingDegrees.length > 0) {
+            throw new CustomError(400, 'Some degrees already exist for these students.');
+        }
+
+        // Calculate GBA for each student and create degrees
+        const degreesToCreate = studentDegrees.map(studentDegree => ({
+            subjectDegree: studentDegree.subjectDegree,
+            GBA: ((Number(studentDegree.subjectDegree) / Number(highestDegree)) * 4).toFixed(2),
+            studentId: new mongoose.Types.ObjectId(studentDegree.studentId),
+            subjectId: new mongoose.Types.ObjectId(subjectId),
+            yearId: subject.yearId
+        }));
+
+        await this.DegreeModel.insertMany(degreesToCreate);
+
         return {
-            message: 'Degree added successfully.'
+            message: 'Degrees added successfully.'
         }
     }
 

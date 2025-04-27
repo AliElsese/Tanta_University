@@ -1,14 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsMongoId, IsNotEmpty, IsNumber, MaxLength, MinLength } from "class-validator";
+import { IsArray, IsMongoId, IsNotEmpty, IsString, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
-export class NewDegreeDto {
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsNumber()
-    @MinLength(1)
-    @MaxLength(3)
-    subjectDegree: Number;
-
+class StudentDegreeDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsMongoId()
@@ -16,11 +10,24 @@ export class NewDegreeDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsMongoId()
-    subjectId: string;
-    
+    @IsString()
+    subjectDegree: string;
+}
+
+export class NewDegreeDto {
+    @ApiProperty({ type: [StudentDegreeDto] })
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => StudentDegreeDto)
+    studentDegrees: StudentDegreeDto[];
+
     @ApiProperty()
     @IsNotEmpty()
     @IsMongoId()
-    yearId: string;
+    subjectId: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    highestDegree: string;
 }
