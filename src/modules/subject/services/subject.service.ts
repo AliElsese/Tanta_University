@@ -190,10 +190,19 @@ export class SubjectService {
             throw new CustomError(404, 'Subject not found.');
         }
 
-        const students = await this.StudentModel.find({ subjectIds: { $in: [new mongoose.Types.ObjectId(subjectId)] } })
-            .skip(skip)
-            .limit(limit)
-            .select({ _id: 1, name: 1 });
+        // Find students who have this subject in their academicYears array
+        const students = await this.StudentModel.find({
+            'academicYears': {
+                $elemMatch: {
+                    yearId: subject.yearId,
+                    term: subject.term,
+                    subjectsIds: { $in: [subject._id] }
+                }
+            }
+        })
+        .skip(skip)
+        .limit(limit)
+        .select({ _id: 1, name: 1, universityId: 1 });
 
         return {
             message: 'Students enrolled in this subject.',
