@@ -13,8 +13,6 @@ export class NewSubjectDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    @MinLength(11)
-    @MaxLength(11)
     code: string;
 
     @ApiProperty()
