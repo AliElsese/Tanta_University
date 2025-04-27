@@ -26,7 +26,11 @@ export class StudentService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addStudent(studentDto: NewStudentDto) {
-        const { name, nationalId, gender, universityId, phoneNumber, email, sectionId, yearId } = studentDto;
+        const { name, nationalId, gender, universityId, phoneNumber, email, sectionName, yearId } = studentDto;
+        const section = await this.SectionModel.findOne({ name: sectionName });
+        if(!section) {
+            throw new CustomError(404, 'Section not found.');
+        }
 
         const userExist = await this.StudentModel.findOne({
             $or: [
@@ -46,7 +50,7 @@ export class StudentService {
             name, nationalId, gender, universityId,
             passwordHash: hashedPassword,
             phoneNumber, email,
-            sectionId, yearId
+            sectionId: section._id, yearId
         });
 
         return {
@@ -64,7 +68,7 @@ export class StudentService {
 
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const students = await this.StudentModel.find({ sectionId: (section._id).toString() })
+        const students = await this.StudentModel.find({ sectionId: section._id })
             .skip(skip)
             .limit(limit)
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })

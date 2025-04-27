@@ -36,6 +36,7 @@ export class NewDoctorDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsMongoId()
-    sectionId: string;
+    @IsString()
+    @Matches(/^[\u0600-\u06FF\sA-Za-z]+$/, { message: 'Name must contain only Arabic or English letters' })
+    sectionName: string;
 }

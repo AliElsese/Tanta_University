@@ -32,7 +32,11 @@ export class SubjectService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addSubject(subjectDto: NewSubjectDto) {
-        const { name, code, hoursNumber, highestDegree, term, doctorId, sectionId, yearId } = subjectDto;
+        const { name, code, hoursNumber, highestDegree, term, doctorId, sectionName, yearId } = subjectDto;
+        const section = await this.SectionModel.findOne({ name: sectionName });
+        if(!section) {
+            throw new CustomError(404, 'Section not found.');
+        }
 
         const subjectExist = await this.SubjectModel.findOne({ name });
         if(subjectExist) {
@@ -41,7 +45,7 @@ export class SubjectService {
 
         const newSubject = await this.SubjectModel.create({
             name, code, hoursNumber, highestDegree, term,
-            doctorId, sectionId, yearId
+            doctorId, sectionId: section._id, yearId
         });
 
         return {
@@ -59,7 +63,7 @@ export class SubjectService {
 
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const subjects = await this.SubjectModel.find({ sectionId: (section._id).toString() })
+        const subjects = await this.SubjectModel.find({ sectionId: section._id })
             .skip(skip)
             .limit(limit)
             .populate<{ doctorId: PopulatedDoctor }>('doctorId', { _id: 0, name: 1 })

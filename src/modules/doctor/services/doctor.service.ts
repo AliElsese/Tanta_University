@@ -22,7 +22,11 @@ export class DoctorService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addDoctor(doctorDto: NewDoctorDto) {
-        const { name, nationalId, major, phoneNumber, email, sectionId } = doctorDto;
+        const { name, nationalId, major, phoneNumber, email, sectionName } = doctorDto;
+        const section = await this.SectionModel.findOne({ name: sectionName });
+        if(!section) {
+            throw new CustomError(404, 'Section not found.');
+        }
 
         const userExist = await this.DoctorModel.findOne({ 
             $or: [
@@ -40,7 +44,7 @@ export class DoctorService {
         const newDoctor = await this.DoctorModel.create({
             name, nationalId, major, phoneNumber, email,
             passwordHash: hashedPassword,
-            sectionId
+            sectionId: section._id
         });
 
         return {
@@ -58,7 +62,7 @@ export class DoctorService {
 
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const doctors = await this.DoctorModel.find({ sectionId: (section._id).toString() }).skip(skip).limit(limit).select({ _id: 1, name: 1, nationalId: 1, phoneNumber: 1, email: 1 });
+        const doctors = await this.DoctorModel.find({ sectionId: section._id }).skip(skip).limit(limit).select({ _id: 1, name: 1, nationalId: 1, phoneNumber: 1, email: 1 });
         
         return {
             message: 'Doctors data.',
