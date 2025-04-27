@@ -1,10 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class UpdateDoctorDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
+    @Matches(/^[\u0600-\u06FF\sA-Za-z]+$/, { message: 'Name must contain only Arabic or English letters' })
     @MaxLength(50)
     name: string;
 
@@ -18,6 +19,7 @@ export class UpdateDoctorDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
+    @Matches(/^[\u0600-\u06FF\sA-Za-z]+$/, { message: 'Name must contain only Arabic or English letters' })
     @MaxLength(50)
     major: string;
 

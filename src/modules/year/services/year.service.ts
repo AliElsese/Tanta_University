@@ -20,14 +20,18 @@ export class YearService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addYear(yearDto: NewYearDto) {
-        const { name, sectionId } = yearDto;
+        const { name, sectionName } = yearDto;
+        const section = await this.SectionModel.findOne({ name: sectionName });
+        if(!section) {
+            throw new CustomError(404, 'Section not found.');
+        }
 
-        const yearExist = await this.YearModel.findOne({ name, sectionId });
+        const yearExist = await this.YearModel.findOne({ name, sectionId: section._id });
         if(yearExist) {
             throw new CustomError(400, 'This year already exist.');
         }
 
-        const newYear = await this.YearModel.create({ name, sectionId });
+        const newYear = await this.YearModel.create({ name, sectionId: section._id });
 
         return {
             message: 'Year added successfully.'
@@ -45,7 +49,6 @@ export class YearService {
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
         const years = await this.YearModel.find({ sectionId: (section._id).toString() }).skip(skip).limit(limit).select({ _id: 1, name: 1 });
-        console.log(years);
         
         return {
             message: 'Years data.',

@@ -1,12 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsEnum, IsMongoId, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import { IsEnum, IsMongoId, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { SubjectTerm } from "../enums/subject.enum";
 
 export class NewSubjectDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    @IsAlpha()
+    @Matches(/^[\u0600-\u06FF\sA-Za-z]+$/, { message: 'Name must contain only Arabic or English letters' })
     @MaxLength(50)
     name: string;
 

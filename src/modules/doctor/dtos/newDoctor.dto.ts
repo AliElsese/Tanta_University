@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsEmail, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsMongoId, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class NewDoctorDto {
     @ApiProperty()
@@ -12,14 +12,14 @@ export class NewDoctorDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    @IsAlpha()
+    @Matches(/^[\u0600-\u06FF\sA-Za-z]+$/, { message: 'Name must contain only Arabic or English letters' })
     @MaxLength(50)
     name: string;
 
     @ApiProperty()
     @IsOptional()
     @IsString()
-    @IsAlpha()
+    @Matches(/^[\u0600-\u06FF\sA-Za-z]+$/, { message: 'Name must contain only Arabic or English letters' })
     major: string;
 
     @ApiProperty()
