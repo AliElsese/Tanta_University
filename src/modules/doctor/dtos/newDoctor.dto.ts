@@ -5,7 +5,7 @@ export class NewDoctorDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    @IsAlpha()
+    @MinLength(14)
     @MaxLength(14)
     nationalId: string;
 
