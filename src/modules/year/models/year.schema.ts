@@ -9,7 +9,7 @@ export class Year extends Document {
     @Prop({ required: [true, 'Year name is required'] })
     name: string;
 
-    @Prop({ type: Types.ObjectId, ref: 'Section' })
+    @Prop({ required: [true, 'Section is required'], type: Types.ObjectId, ref: 'Section' })
     sectionId: Types.ObjectId;
 }
 

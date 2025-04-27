@@ -22,13 +22,13 @@ export class Subject extends Document {
     @Prop({ required: [true, 'Term is required'], enum: SubjectTerm })
     term: SubjectTerm;
 
-    @Prop({ type: Types.ObjectId, ref: 'Doctor' })
+    @Prop({ required: [true, 'Doctor is required'], type: Types.ObjectId, ref: 'Doctor' })
     doctorId: Types.ObjectId;
 
-    @Prop({ type: Types.ObjectId, ref: 'Section' })
+    @Prop({ required: [true, 'Section is required'], type: Types.ObjectId, ref: 'Section' })
     sectionId: Types.ObjectId;
 
-    @Prop({ type: Types.ObjectId, ref: 'Year' })
+    @Prop({ required: [true, 'Year is required'], type: Types.ObjectId, ref: 'Year' })
     yearId: Types.ObjectId;
 }
 

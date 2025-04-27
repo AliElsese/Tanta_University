@@ -27,7 +27,7 @@ export class Doctor extends Document {
     @Prop({ required: [true, 'Email is required'], default: '' })
     email: string;
 
-    @Prop({ type: Types.ObjectId, ref: 'Section' })
+    @Prop({ required: [true, 'Section is required'], type: Types.ObjectId, ref: 'Section' })
     sectionId: Types.ObjectId;
 }
 

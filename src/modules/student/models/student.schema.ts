@@ -31,10 +31,10 @@ export class Student extends Document {
     @Prop({ required: [true, 'Email is required'], default: '' })
     email: string;
 
-    @Prop({ type: Types.ObjectId, ref: 'Section' })
+    @Prop({ required: [true, 'Section is required'], type: Types.ObjectId, ref: 'Section' })
     sectionId: Types.ObjectId;
 
-    @Prop({ type: Types.ObjectId, ref: 'Year' })
+    @Prop({ required: [true, 'Year is required'], type: Types.ObjectId, ref: 'Year' })
     yearId: Types.ObjectId;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Subject' }], default: [] })
