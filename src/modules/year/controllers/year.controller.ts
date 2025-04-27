@@ -40,9 +40,9 @@ export class YearController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Get('findAll/:id')
+    @Get('findAll/:name')
     @ApiOperation({ summary: 'Get years' })
-    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
+    @ApiParam({ name: 'name', required: true, description: 'The name of the section' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Years data' })
@@ -56,8 +56,8 @@ export class YearController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Param() sectionId: string, @Query() paginationDto: PaginationDto) {
-        return this.YearService.getYears(sectionId, paginationDto);
+    async findAll(@Param('name') name: string, @Query() paginationDto: PaginationDto) {
+        return this.YearService.getYears(name, paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

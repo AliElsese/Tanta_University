@@ -40,9 +40,9 @@ export class DoctorController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Get('findAll/:id')
+    @Get('findAll/:name')
     @ApiOperation({ summary: 'Get doctors' })
-    @ApiParam({ name: 'id', required: true, description: 'The ID of the section' })
+    @ApiParam({ name: 'name', required: true, description: 'The name of the section' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Doctors data' })
@@ -56,8 +56,8 @@ export class DoctorController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Param() sectionId: string, @Query() paginationDto: PaginationDto) {
-        return this.DoctorService.getDoctors(sectionId, paginationDto);
+    async findAll(@Param('name') name: string, @Query() paginationDto: PaginationDto) {
+        return this.DoctorService.getDoctors(name, paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

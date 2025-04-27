@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
+import { Section } from "src/modules/section/models/section.schema";
 
 export interface PopulatedYear {
     name: string;
@@ -16,7 +17,10 @@ export interface PopulatedYear {
 export class StudentService {
     constructor(
         @InjectModel(Student.name)
-        private StudentModel: mongoose.Model<Student> 
+        private StudentModel: mongoose.Model<Student>,
+
+        @InjectModel(Section.name)
+        private SectionModel: mongoose.Model<Section>
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -52,10 +56,15 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getStudents(sectionId: string, paginationDto: PaginationDto) {
+    async getStudents(name: string, paginationDto: PaginationDto) {
+        const section = await this.SectionModel.findOne({ name });
+        if(!section) {
+            throw new CustomError(404, 'Section not found.');
+        }
+
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const students = await this.StudentModel.find({ sectionId })
+        const students = await this.StudentModel.find({ sectionId: (section._id).toString() })
             .skip(skip)
             .limit(limit)
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })

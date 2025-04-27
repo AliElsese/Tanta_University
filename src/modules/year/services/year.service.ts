@@ -6,12 +6,15 @@ import { Year } from "../models/year.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
-
+import { Section } from "src/modules/section/models/section.schema";
 @Injectable()
 export class YearService {
     constructor(
         @InjectModel(Year.name)
-        private YearModel: mongoose.Model<Year> 
+        private YearModel: mongoose.Model<Year>,
+
+        @InjectModel(Section.name)
+        private SectionModel: mongoose.Model<Section>
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -33,10 +36,16 @@ export class YearService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getYears(sectionId: string, paginationDto: PaginationDto) {
+    async getYears(name: string, paginationDto: PaginationDto) {
+        const section = await this.SectionModel.findOne({ name });
+        if(!section) {
+            throw new CustomError(404, 'Section not found.');
+        }
+
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const years = await this.YearModel.find({ sectionId }).skip(skip).limit(limit).select({ _id: 1, name: 1 });
+        const years = await this.YearModel.find({ sectionId: (section._id).toString() }).skip(skip).limit(limit).select({ _id: 1, name: 1 });
+        console.log(years);
         
         return {
             message: 'Years data.',

@@ -4,11 +4,12 @@ import { SubjectSchema } from "./models/subject.schema";
 import { SubjectController } from "./controllers/subject.controller";
 import { SubjectService } from "./services/subject.service";
 import { StudentSchema } from "../student/models/student.schema";
-
+import { SectionSchema } from "../section/models/section.schema";
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: 'Subject', schema: SubjectSchema },
+            { name: 'Section', schema: SectionSchema },
             { name: 'Student', schema: StudentSchema }
         ])
     ],
