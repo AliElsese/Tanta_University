@@ -13,7 +13,6 @@ import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 @ApiTags('degree')
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@Roles(UserRole.EMPLOYEE)
 export class DegreeController {
     constructor(
         private DegreeService: DegreeService
@@ -21,6 +20,7 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Post('createDegree')
     @ApiOperation({ summary: 'Create degree' })
     @ApiBody({ description: 'Degree inputs', type: NewDegreeDto })
@@ -41,6 +41,7 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Get('showSubjectDegrees/:id')
     @ApiOperation({ summary: 'Get subject degrees' })
     @ApiParam({ name: 'id', required: true, type: String, description: 'ID of the subject' })
@@ -61,6 +62,7 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Put('updateDegree/:degreeId')
     @ApiOperation({ summary: 'Update degree' })
     @ApiParam({ name: 'degreeId', required: true, type: String, description: 'ID of the degree' })
@@ -103,6 +105,7 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR)
     @Get('subjectDegrees/:subjectId')
     @ApiOperation({ summary: 'Get subject degrees' })
     @ApiParam({ name: 'subjectId', required: true, type: String, description: 'ID of the subject' })

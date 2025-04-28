@@ -20,6 +20,7 @@ export class SubjectController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Post('createSubject')
     @ApiOperation({ summary: 'Create subject' })
     @ApiBody({ description: 'Subject inputs', type: NewSubjectDto })
@@ -40,6 +41,7 @@ export class SubjectController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Get('findAll/:name')
     @ApiOperation({ summary: 'Get subjects' })
     @ApiParam({ name: 'name', required: true, description: 'The name of the section' })
@@ -62,6 +64,7 @@ export class SubjectController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Get('findOne/:id')
     @ApiOperation({ summary: 'Get subject' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the subject' })
@@ -82,6 +85,7 @@ export class SubjectController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Put('updateOne/:id')
     @ApiOperation({ summary: 'Update subject' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the subject' })
@@ -105,6 +109,7 @@ export class SubjectController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Delete('deleteOne/:id')
     @ApiOperation({ summary: 'Delete subject' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the subject' })
@@ -169,6 +174,7 @@ export class SubjectController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR)
     @Get('getDoctorSubjects/:id')
     @ApiOperation({ summary: 'Get doctor subjects' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the doctor' })
