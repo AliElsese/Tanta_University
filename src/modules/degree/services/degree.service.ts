@@ -42,7 +42,7 @@ export class DegreeService {
 
         // Check if any of the degrees already exist
         const existingDegrees = await this.DegreeModel.find({
-            subjectId,
+            subjectId: new mongoose.Types.ObjectId(subjectId),
             studentId: { $in: studentIds.map(id => new mongoose.Types.ObjectId(id)) }
         });
 
