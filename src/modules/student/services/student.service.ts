@@ -192,4 +192,60 @@ export class StudentService {
             message: 'Student deleted successfully.'
         }
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async getStudentYearsByName(name: string) {
+        const student = await this.StudentModel.findOne({ name })
+            .populate<{ yearIds: PopulatedYear[] }>('yearIds', { _id: 1, name: 1 });
+        
+        if (!student) {
+            throw new CustomError(404, 'Student not found.');
+        }
+
+        return {
+            message: 'Student years retrieved successfully.',
+            years: student.yearIds.map(year => ({
+                id: year._id,
+                name: year.name
+            }))
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async getStudentSubjectsByYear(name: string, yearId: string) {
+        const student = await this.StudentModel.findOne({ name })
+            .populate<{ academicYears: Array<{
+                yearId: PopulatedYear;
+                term: string;
+                subjectsIds: Array<{
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                }>;
+            }> }>('academicYears.subjectsIds', { _id: 1, name: 1 })
+            .populate('academicYears.yearId', { _id: 1, name: 1 });
+
+        if (!student) {
+            throw new CustomError(404, 'Student not found.');
+        }
+
+        // Filter academic years for the specified year
+        const yearSubjects = student.academicYears
+            .filter(academicYear => academicYear.yearId._id.toString() === yearId)
+            .map(academicYear => ({
+                term: academicYear.term,
+                subjects: academicYear.subjectsIds.map(subject => ({
+                    id: subject._id.toString(),
+                    name: subject.name
+                }))
+            }));
+
+        return {
+            message: 'Student subjects retrieved successfully.',
+            yearSubjects
+        };
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
 }

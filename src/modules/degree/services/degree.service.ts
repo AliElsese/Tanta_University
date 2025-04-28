@@ -139,7 +139,7 @@ export class DegreeService {
     async subjectDegrees(subjectDegreesDto: SubjectDegreesDto) {
         const { subjectId } = subjectDegreesDto;
 
-        const subjectDegrees = await this.DegreeModel.find({ subjectId }).populate({ path: 'studentId', select: 'name' });
+        const subjectDegrees = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId)  }).populate({ path: 'studentId', select: 'name' });
 
         return {
             message: 'Subject degrees',

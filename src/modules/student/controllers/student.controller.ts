@@ -12,7 +12,6 @@ import { UserRole } from "src/modules/shared/enums/roles.enum";
 @ApiTags('student')
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@Roles(UserRole.EMPLOYEE)
 export class StudentController {
     constructor(
         private StudentService: StudentService
@@ -20,6 +19,7 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Post('createStudent')
     @ApiOperation({ summary: 'Create student' })
     @ApiBody({ description: 'Student inputs', type: NewStudentDto })
@@ -40,6 +40,7 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Get('findAll/:name')
     @ApiOperation({ summary: 'Get students' })
     @ApiParam({ name: 'name', required: true, description: 'The name of the section' })
@@ -62,6 +63,7 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Get('findOne/:id')
     @ApiOperation({ summary: 'Get student' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the student' })
@@ -82,6 +84,7 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Put('updateOne/:id')
     @ApiOperation({ summary: 'Update student' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the student' })
@@ -105,6 +108,7 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.EMPLOYEE)
     @Delete('deleteOne/:id')
     @ApiOperation({ summary: 'Delete student' })
     @ApiParam({ name: 'id', required: true, description: 'The ID of the student' })
@@ -122,4 +126,55 @@ export class StudentController {
     async deleteOne(@Param() studentId: string) {
         return this.StudentService.removeStudent(studentId);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.STUDENT)
+    @Get('getYearsByName/:name')
+    @ApiOperation({ summary: 'Get student years by name' })
+    @ApiParam({ name: 'name', required: true, description: 'The name of the student' })
+    @ApiResponse({ status: 200, description: 'Student years retrieved successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiResponse({ status: 404, description: 'Student not found' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getStudentYearsByName(@Param('name') name: string) {
+        return this.StudentService.getStudentYearsByName(name);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.STUDENT)
+    @Get('getSubjectsByYear/:name/:yearId')
+    @ApiOperation({ summary: 'Get student subjects by year ID' })
+    @ApiParam({ name: 'name', required: true, description: 'The name of the student' })
+    @ApiParam({ name: 'yearId', required: true, description: 'The ID of the year' })
+    @ApiResponse({ status: 200, description: 'Student subjects retrieved successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiResponse({ status: 404, description: 'Student not found' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getStudentSubjectsByYear(
+        @Param('name') name: string,
+        @Param('yearId') yearId: string
+    ) {
+        return this.StudentService.getStudentSubjectsByYear(name, yearId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
 }

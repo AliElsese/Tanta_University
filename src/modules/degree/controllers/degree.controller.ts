@@ -105,7 +105,7 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR)
+    @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR, UserRole.STUDENT)
     @Get('subjectDegrees/:subjectId')
     @ApiOperation({ summary: 'Get subject degrees' })
     @ApiParam({ name: 'subjectId', required: true, type: String, description: 'ID of the subject' })
