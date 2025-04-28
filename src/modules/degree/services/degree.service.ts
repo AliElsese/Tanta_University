@@ -33,14 +33,22 @@ export class DegreeService {
             throw new CustomError(404, 'This subject not found.');
         }
 
+        // Check for duplicate student IDs in the input
+        const studentIds = studentDegrees.map(sd => sd.studentId);
+        const uniqueStudentIds = new Set(studentIds);
+        if (studentIds.length !== uniqueStudentIds.size) {
+            throw new CustomError(400, 'Duplicate student IDs found in the input.');
+        }
+
         // Check if any of the degrees already exist
         const existingDegrees = await this.DegreeModel.find({
             subjectId,
-            studentId: { $in: studentDegrees.map(sd => new mongoose.Types.ObjectId(sd.studentId)) }
+            studentId: { $in: studentIds.map(id => new mongoose.Types.ObjectId(id)) }
         });
 
         if(existingDegrees.length > 0) {
-            throw new CustomError(400, 'Some degrees already exist for these students.');
+            const existingStudentIds = existingDegrees.map(degree => degree.studentId.toString());
+            throw new CustomError(400, `Degrees already exist for students with IDs: ${existingStudentIds.join(', ')}`);
         }
 
         // Calculate GBA for each student and create degrees
