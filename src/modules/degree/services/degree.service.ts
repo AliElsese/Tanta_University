@@ -13,6 +13,10 @@ interface StudentDegree {
     subjectDegree: string;
 }
 
+export interface PopulatedStudent {
+    name: string;
+}
+
 @Injectable()
 export class DegreeService {
     constructor(
@@ -64,6 +68,28 @@ export class DegreeService {
 
         return {
             message: 'Degrees added successfully.'
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async showSubjectDegrees(subjectId: string) {
+        const subjectDegrees = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId) })
+            .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 0, name: 1 })
+            .select({ _id: 1, subjectDegree: 1, GBA: 1, studentId: 1 });
+
+        const degrees = subjectDegrees.map(degree => {
+            return {
+                _id: degree._id,
+                subjectDegree: degree.subjectDegree,
+                GBA: degree.GBA,
+                studentName: degree.studentId.name
+            }
+        })
+
+        return {
+            message: 'Subject degrees',
+            degrees
         }
     }
 

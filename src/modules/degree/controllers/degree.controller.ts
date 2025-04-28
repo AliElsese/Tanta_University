@@ -40,6 +40,26 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Get('showSubjectDegrees/:subjectId')
+    @ApiOperation({ summary: 'Get subject degrees' })
+    @ApiParam({ name: 'subjectId', required: true, type: String, description: 'ID of the subject' })
+    @ApiResponse({ status: 200, description: 'subject degrees' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async showSubjectDegrees(@Param() subjectId: string) {
+        return this.DegreeService.showSubjectDegrees(subjectId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     @Get('studentDegrees/:studentId/:yearId')
     @ApiOperation({ summary: 'Get student year degrees' })
     @ApiParam({ name: 'studentId', required: true, type: String, description: 'ID of the student' })
