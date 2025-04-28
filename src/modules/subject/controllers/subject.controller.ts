@@ -166,4 +166,24 @@ export class SubjectController {
     async getSubjectStudents(@Param('id') subjectId: string, @Query() paginationDto: PaginationDto) {
         return this.SubjectService.getSubjectStudents(subjectId, paginationDto);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Get('getDoctorSubjects/:id')
+    @ApiOperation({ summary: 'Get doctor subjects' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the doctor' })
+    @ApiResponse({ status: 200, description: 'Doctor subjects' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getDoctorSubjects(@Param('id') doctorId: string) {
+        return this.SubjectService.getDoctorSubjects(doctorId);
+    }
 }

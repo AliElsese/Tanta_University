@@ -11,7 +11,7 @@ export class JWTService {
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     async generateAccessToken(payload: any) {
-        const accessToken = this.JwtService.sign(payload, { expiresIn: '20m' });
+        const accessToken = this.JwtService.sign(payload, { expiresIn: '2h' });
         return accessToken;
     }
 

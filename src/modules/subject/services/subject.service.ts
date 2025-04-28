@@ -211,4 +211,20 @@ export class SubjectService {
             totalStudents: students.length
         }
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    // Get doctor subjects
+    async getDoctorSubjects(doctorId: string) {
+        const subjects = await this.SubjectModel.find({ doctorId: new mongoose.Types.ObjectId(doctorId) })
+            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, term: 1, yearId: 1 });
+        if (!subjects) {
+            throw new CustomError(404, 'Subjects not found.');
+        }
+
+        return {
+            message: 'Doctor subjects.',
+            subjects
+        }
+    }
 }
