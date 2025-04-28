@@ -41,9 +41,9 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Get('showSubjectDegrees/:subjectId')
+    @Get('showSubjectDegrees/:id')
     @ApiOperation({ summary: 'Get subject degrees' })
-    @ApiParam({ name: 'subjectId', required: true, type: String, description: 'ID of the subject' })
+    @ApiParam({ name: 'id', required: true, type: String, description: 'ID of the subject' })
     @ApiResponse({ status: 200, description: 'subject degrees' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiHeader({
@@ -55,7 +55,7 @@ export class DegreeController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async showSubjectDegrees(@Param() subjectId: string) {
+    async showSubjectDegrees(@Param('id') subjectId: string) {
         return this.DegreeService.showSubjectDegrees(subjectId);
     }
 
