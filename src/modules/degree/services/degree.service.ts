@@ -7,6 +7,7 @@ import { CustomError } from "src/modules/shared/helpers/customError";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
 import { SubjectDegreesDto } from "../dtos/subjectDegree.dto";
+import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 
 interface StudentDegree {
     studentId: string;
@@ -76,7 +77,7 @@ export class DegreeService {
     async showSubjectDegrees(subjectId: string) {
         const subjectDegrees = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId) })
             .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 0, name: 1 })
-            .select({ _id: 1, subjectDegree: 1, GBA: 1, studentId: 1 });
+            .select({ _id: 1, subjectDegree: 1, GBA: 1, studentId: 1, subjectId: 1 });
 
         const degrees = subjectDegrees.map(degree => {
             return {
@@ -90,6 +91,33 @@ export class DegreeService {
         return {
             message: 'Subject degrees',
             degrees
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async updateDegree(degreeId: string, updateDegreeDto: UpdateDegreeDto) {
+        const { subjectDegree, subjectId } = updateDegreeDto;
+
+        const subject = await this.SubjectModel.findById(subjectId);
+        if (!subject) {
+            throw new CustomError(404, 'Subject not found.');
+        }
+
+        const GBA = ((Number(subjectDegree) / Number(subject.highestDegree)) * 4).toFixed(2);
+
+        const degree = await this.DegreeModel.findByIdAndUpdate(
+            degreeId, 
+            { subjectDegree, GBA }, 
+            { new: true }
+        );
+        
+        if(!degree) {
+            throw new CustomError(404, 'This degree not found.');
+        }
+        
+        return {
+            message: 'Degree updated successfully.'
         }
     }
 

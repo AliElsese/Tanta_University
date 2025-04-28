@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { DegreeService } from "../services/degree.service";
 import { NewDegreeDto } from "../dtos/newDegree.dto";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -7,6 +7,7 @@ import { SubjectDegreesDto } from "../dtos/subjectDegree.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
+import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 
 @Controller('degree')
 @ApiTags('degree')
@@ -56,6 +57,27 @@ export class DegreeController {
     })
     async showSubjectDegrees(@Param() subjectId: string) {
         return this.DegreeService.showSubjectDegrees(subjectId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Put('updateDegree/:degreeId')
+    @ApiOperation({ summary: 'Update degree' })
+    @ApiParam({ name: 'degreeId', required: true, type: String, description: 'ID of the degree' })
+    @ApiBody({ description: 'Degree inputs', type: UpdateDegreeDto })
+    @ApiResponse({ status: 200, description: 'Degree updated successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async updateStudentDegree(@Param() degreeId: string, @Body() updateDegreeDto: UpdateDegreeDto) {
+        return this.DegreeService.updateDegree(degreeId, updateDegreeDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
