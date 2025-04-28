@@ -1,9 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { DegreeService } from "../services/degree.service";
 import { NewDegreeDto } from "../dtos/newDegree.dto";
-import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
-import { SubjectDegreesDto } from "../dtos/subjectDegree.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
@@ -41,7 +40,7 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Roles(UserRole.EMPLOYEE)
+    @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR, UserRole.STUDENT)
     @Get('showSubjectDegrees/:id')
     @ApiOperation({ summary: 'Get subject degrees' })
     @ApiParam({ name: 'id', required: true, type: String, description: 'ID of the subject' })
@@ -101,26 +100,5 @@ export class DegreeController {
     })
     async studentDegrees(@Param() yearDegreesDto: StudentYearDegreesDto) {
         return this.DegreeService.studentYearDegrees(yearDegreesDto);
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR, UserRole.STUDENT)
-    @Get('subjectDegrees/:subjectId')
-    @ApiOperation({ summary: 'Get subject degrees' })
-    @ApiParam({ name: 'subjectId', required: true, type: String, description: 'ID of the subject' })
-    @ApiResponse({ status: 200, description: 'subject degrees' })
-    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
-    @ApiHeader({
-        name: 'Authorization',
-        description: 'Bearer token for authentication',
-        required: true,
-        schema: {
-            type: 'string',
-            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-        }
-    })
-    async subjectDegrees(@Param() subjectDegreesDto: SubjectDegreesDto) {
-        return this.DegreeService.subjectDegrees(subjectDegreesDto);
     }
 }

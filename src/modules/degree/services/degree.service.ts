@@ -6,7 +6,6 @@ import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
-import { SubjectDegreesDto } from "../dtos/subjectDegree.dto";
 import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 
 interface StudentDegree {
@@ -133,19 +132,4 @@ export class DegreeService {
             studentDegrees
         }
     }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    async subjectDegrees(subjectDegreesDto: SubjectDegreesDto) {
-        const { subjectId } = subjectDegreesDto;
-
-        const subjectDegrees = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId)  }).populate({ path: 'studentId', select: 'name' });
-
-        return {
-            message: 'Subject degrees',
-            subjectDegrees
-        }
-    }
-
-    
 }
