@@ -7,6 +7,7 @@ import { CustomError } from "src/modules/shared/helpers/customError";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
 import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
+import { DegreeCalcService } from "src/modules/shared/services/degreeCalc.service";
 
 interface StudentDegree {
     studentId: string;
@@ -24,7 +25,9 @@ export class DegreeService {
         private DegreeModel: mongoose.Model<Degree>,
 
         @InjectModel(Subject.name)
-        private SubjectModel: mongoose.Model<Subject>
+        private SubjectModel: mongoose.Model<Subject>,
+
+        private DegreeCalcService: DegreeCalcService
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +61,8 @@ export class DegreeService {
         // Calculate GBA for each student and create degrees
         const degreesToCreate = studentDegrees.map(studentDegree => ({
             subjectDegree: studentDegree.subjectDegree,
-            GBA: ((Number(studentDegree.subjectDegree) / Number(highestDegree)) * 4).toFixed(2),
+            GBA: this.DegreeCalcService.calculateGBA(Number(highestDegree), Number(studentDegree.subjectDegree)),
+            grade: this.DegreeCalcService.calculateAcademicGrade(Number(this.DegreeCalcService.calculateGBA(Number(highestDegree), Number(studentDegree.subjectDegree)))),
             studentId: new mongoose.Types.ObjectId(studentDegree.studentId),
             subjectId: new mongoose.Types.ObjectId(subjectId),
             yearId: subject.yearId

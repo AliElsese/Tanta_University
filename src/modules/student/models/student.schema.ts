@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 import { Gender } from "../enums/student.enum";
 import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
-
+import { Grade } from "src/modules/degree/enums/grade.enum";
 interface AcademicYear {
     yearId: Types.ObjectId;
     term: string;
@@ -47,7 +47,9 @@ export class Student extends Document {
     @Prop({ required: [true, 'Academic years are required'], type: [{
         yearId: { type: Types.ObjectId, ref: 'Year' },
         term: { type: String, enum: SubjectTerm },
-        subjectsIds: [{ type: Types.ObjectId, ref: 'Subject' }]
+        subjectsIds: [{ type: Types.ObjectId, ref: 'Subject' }],
+        GBA: Number,
+        grade: { type: String, enum: Grade }
     }], default: [] })
     academicYears: AcademicYear[];
 }

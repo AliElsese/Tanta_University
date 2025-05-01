@@ -10,7 +10,7 @@ import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
-
+import { Grade } from "src/modules/degree/enums/grade.enum";
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
     name: string;
@@ -59,12 +59,16 @@ export class StudentService {
             {
                 yearId: new mongoose.Types.ObjectId(yearId),
                 term: SubjectTerm.FirstTerm,
-                subjectsIds: subjectsIdsFirstTerm
+                subjectsIds: subjectsIdsFirstTerm,
+                GBA: 0,
+                grade: Grade.Fail
             },
             {
                 yearId: new mongoose.Types.ObjectId(yearId),
                 term: SubjectTerm.SecondTerm,
-                subjectsIds: subjectsIdsSecondTerm
+                subjectsIds: subjectsIdsSecondTerm,
+                GBA: 0,
+                grade: Grade.Fail
             }
         ]
 
@@ -195,8 +199,8 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getStudentYearsByName(name: string) {
-        const student = await this.StudentModel.findOne({ name })
+    async getStudentYearsByName(studentId: string) {
+        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
             .populate<{ yearIds: PopulatedYear[] }>('yearIds', { _id: 1, name: 1 });
         
         if (!student) {
@@ -214,8 +218,8 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getStudentSubjectsByYear(name: string, yearId: string) {
-        const student = await this.StudentModel.findOne({ name })
+    async getStudentSubjectsByYear(studentId: string, yearId: string) {
+        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
             .populate<{ academicYears: Array<{
                 yearId: PopulatedYear;
                 term: string;

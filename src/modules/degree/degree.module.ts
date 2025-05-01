@@ -4,7 +4,7 @@ import { DegreeSchema } from "./models/degree.schema";
 import { DegreeController } from "./controllers/degree.controller";
 import { DegreeService } from "./services/degree.service";
 import { SubjectSchema } from "../subject/models/subject.schema";
-
+import { DegreeCalcService } from "src/modules/shared/services/degreeCalc.service";
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -13,7 +13,7 @@ import { SubjectSchema } from "../subject/models/subject.schema";
         ])
     ],
     controllers: [DegreeController],
-    providers: [DegreeService]
+    providers: [DegreeService, DegreeCalcService]
 })
 
 export class DegreeModule {}

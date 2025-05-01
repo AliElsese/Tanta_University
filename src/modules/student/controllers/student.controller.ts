@@ -130,9 +130,9 @@ export class StudentController {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Roles(UserRole.STUDENT)
-    @Get('getYearsByName/:name')
+    @Get('getYearsByName/:id')
     @ApiOperation({ summary: 'Get student years by name' })
-    @ApiParam({ name: 'name', required: true, description: 'The name of the student' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the student' })
     @ApiResponse({ status: 200, description: 'Student years retrieved successfully' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiResponse({ status: 404, description: 'Student not found' })
@@ -145,16 +145,16 @@ export class StudentController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async getStudentYearsByName(@Param('name') name: string) {
-        return this.StudentService.getStudentYearsByName(name);
+    async getStudentYearsByName(@Param('id') studentId: string) {
+        return this.StudentService.getStudentYearsByName(studentId);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Roles(UserRole.STUDENT)
-    @Get('getSubjectsByYear/:name/:yearId')
+    @Get('getSubjectsByYear/:studentId/:yearId')
     @ApiOperation({ summary: 'Get student subjects by year ID' })
-    @ApiParam({ name: 'name', required: true, description: 'The name of the student' })
+    @ApiParam({ name: 'studentId', required: true, description: 'The ID of the student' })
     @ApiParam({ name: 'yearId', required: true, description: 'The ID of the year' })
     @ApiResponse({ status: 200, description: 'Student subjects retrieved successfully' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
@@ -169,10 +169,10 @@ export class StudentController {
         }
     })
     async getStudentSubjectsByYear(
-        @Param('name') name: string,
+        @Param('studentId') studentId: string,
         @Param('yearId') yearId: string
     ) {
-        return this.StudentService.getStudentSubjectsByYear(name, yearId);
+        return this.StudentService.getStudentSubjectsByYear(studentId, yearId);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
