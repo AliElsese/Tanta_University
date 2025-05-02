@@ -16,7 +16,6 @@ export class RolesGuard implements CanActivate {
             context.getHandler(),
             context.getClass(),
         ]);
-        console.log('Required roles:', requiredRoles);
 
         if (!requiredRoles) {
             return true;
@@ -24,7 +23,6 @@ export class RolesGuard implements CanActivate {
 
         const request = context.switchToHttp().getRequest();
         const authHeader = request.headers.authorization;
-        console.log('Authorization header:', authHeader);
 
         if (!authHeader) {
             throw new CustomError(401, 'No token provided');
@@ -32,23 +30,17 @@ export class RolesGuard implements CanActivate {
 
         try {
             const token = this.extractToken(authHeader);
-            console.log('Extracted token:', token);
             
             const tokenPayload = this.verifyToken(token);
-            console.log('Token payload:', tokenPayload);
             
             request.user = tokenPayload;
             const userRole = tokenPayload.role;
-            console.log('User role from token:', userRole);
-            console.log('Available roles:', Object.values(UserRole));
 
             if (!userRole || !Object.values(UserRole).includes(userRole)) {
-                console.log('Invalid user role');
                 throw new CustomError(403, 'Invalid user role');
             }
 
             const hasRequiredRole = requiredRoles.some((role) => userRole === role);
-            console.log('Has required role:', hasRequiredRole);
 
             if (!hasRequiredRole) {
                 throw new CustomError(403, 'Forbidden resource');

@@ -7,13 +7,13 @@ import { Grade } from "../enums/grade.enum";
 })
 
 export class Degree extends Document {
-    @Prop({ required: [true, 'Degree is required'] })
+    @Prop({ required: [true, 'Degree is required'], default: 0 })
     subjectDegree: Number;
 
-    @Prop({ required: [true, 'GBA is required'] })
+    @Prop({ required: [true, 'GBA is required'], default: 0 })
     GBA: Number;
 
-    @Prop({ required: [true, 'Grade is required'], enum: Grade })
+    @Prop({ required: [true, 'Grade is required'], enum: Grade, default: Grade.Fail })
     grade: Grade;
 
     @Prop({ type: Types.ObjectId, ref: 'Subject' })

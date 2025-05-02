@@ -8,6 +8,9 @@ import { Document } from "mongoose";
 export class Section extends Document {
     @Prop({ required: [true, 'Section name is required'] })
     name: string;
+
+    @Prop({ required: [true, 'Section slug is required'] })
+    slug: string;
 }
 
 export const SectionSchema = SchemaFactory.createForClass(Section);

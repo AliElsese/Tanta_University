@@ -93,15 +93,26 @@ export class DoctorService {
     async updateDoctor(doctorId: string, doctorDto: UpdateDoctorDto) {
         const { name, nationalId, major, phoneNumber, email } = doctorDto;
 
+        const currentDoctor = await this.DoctorModel.findById(doctorId);
+        if (!currentDoctor) {
+            throw new CustomError(404, 'Doctor not found.');
+        }
+
         const doctorExist = await this.DoctorModel.findOne({ 
-            $or: [
-                { nationalId, _id: { $ne: new mongoose.Types.ObjectId(doctorId) } },
-                { email, _id: { $ne: new mongoose.Types.ObjectId(doctorId) } },
-                { phoneNumber, _id: { $ne: new mongoose.Types.ObjectId(doctorId) } }
+            $and: [
+                {
+                    $or: [
+                        { nationalId },
+                        { email },
+                        { phoneNumber }
+                    ]
+                },
+                { sectionId: currentDoctor.sectionId },
+                { _id: { $ne: new mongoose.Types.ObjectId(doctorId) } }
             ]
         });
         if(doctorExist) {
-            throw new CustomError(400, 'This national ID, email, or phone number already exists.');
+            throw new CustomError(400, 'This national ID, email, or phone number already exists in this section.');
         }
 
         const updatedDoctor = await this.DoctorModel.findByIdAndUpdate(
@@ -109,10 +120,6 @@ export class DoctorService {
             { name, nationalId, major, phoneNumber, email },
             { new: true }
         ).select({ _id: 1, name: 1, nationalId: 1, major: 1, phoneNumber: 1, email: 1 });
-
-        if(!updatedDoctor) {
-            throw new CustomError(404, 'Doctor not found.');
-        }
 
         return {
             message: 'Doctor updated successfully.'

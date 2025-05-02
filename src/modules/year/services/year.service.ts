@@ -79,9 +79,20 @@ export class YearService {
     async updateYear(yearId: string, yearDto: UpdateYearDto) {
         const { name } = yearDto;
 
-        const yearExist = await this.YearModel.findOne({ name });
-        if(yearExist && yearExist._id.toString() !== yearId) {
-            throw new CustomError(400, 'This year name already exists.');
+        const currentYear = await this.YearModel.findById(yearId);
+        if (!currentYear) {
+            throw new CustomError(404, 'Year not found.');
+        }
+
+        const yearExist = await this.YearModel.findOne({ 
+            $and: [
+                { name },
+                { sectionId: currentYear.sectionId },
+                { _id: { $ne: new mongoose.Types.ObjectId(yearId) } }
+            ]
+        });
+        if(yearExist) {
+            throw new CustomError(400, 'This year name already exists in this section.');
         }
 
         const updatedYear = await this.YearModel.findByIdAndUpdate(
@@ -89,10 +100,6 @@ export class YearService {
             { name },
             { new: true }
         );
-
-        if(!updatedYear) {
-            throw new CustomError(404, 'Year not found.');
-        }
 
         return {
             message: 'Year updated successfully.',

@@ -8,6 +8,8 @@ import { CustomError } from "src/modules/shared/helpers/customError";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Student } from "src/modules/student/models/student.schema";
 import { Section } from "src/modules/section/models/section.schema";
+import { Doctor } from "src/modules/doctor/models/doctor.schema";
+import { Year } from "src/modules/year/models/year.schema";
 
 export interface PopulatedYear {
     name: string;
@@ -27,7 +29,13 @@ export class SubjectService {
         private SectionModel: mongoose.Model<Section>,
 
         @InjectModel(Student.name)
-        private StudentModel: mongoose.Model<Student>
+        private StudentModel: mongoose.Model<Student>,
+
+        @InjectModel(Doctor.name)
+        private DoctorModel: mongoose.Model<Doctor>,
+
+        @InjectModel(Year.name)
+        private YearModel: mongoose.Model<Year>
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -39,9 +47,38 @@ export class SubjectService {
             throw new CustomError(404, 'Section not found.');
         }
 
-        const subjectExist = await this.SubjectModel.findOne({ name });
-        if(subjectExist) {
-            throw new CustomError(400, 'This subject already exist.');
+        const doctor = await this.DoctorModel.findById(doctorId);
+        if(!doctor) {
+            throw new CustomError(404, 'Doctor not found.');
+        }
+        if(doctor.sectionId.toString() !== section._id.toString()) {
+            throw new CustomError(400, 'Doctor does not belong to this section.');
+        }
+
+        const year = await this.YearModel.findById(yearId);
+        if(!year) {
+            throw new CustomError(404, 'Year not found.');
+        }
+        if(year.sectionId.toString() !== section._id.toString()) {
+            throw new CustomError(400, 'Year does not belong to this section.');
+        }
+
+        // Check if subject name already exists in the section
+        const subjectNameExist = await this.SubjectModel.findOne({ 
+            name,
+            sectionId: section._id 
+        });
+        if(subjectNameExist) {
+            throw new CustomError(400, 'This subject name already exists in this section.');
+        }
+
+        // Check if subject code already exists in the section
+        const subjectCodeExist = await this.SubjectModel.findOne({ 
+            code,
+            sectionId: section._id 
+        });
+        if(subjectCodeExist) {
+            throw new CustomError(400, 'This subject code already exists in this section.');
         }
 
         const newSubject = await this.SubjectModel.create({
@@ -125,22 +162,49 @@ export class SubjectService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async updateSubject(subjectId: string, subjectDto: UpdateSubjectDto) {
-        const { name } = subjectDto;
+        const { name, code, hoursNumber, highestDegree, term } = subjectDto;
 
-        const subjectExist = await this.SubjectModel.findOne({ name });
-        if(subjectExist && subjectExist._id.toString() !== subjectId) {
-            throw new CustomError(400, 'This subject name already exists.');
+        const currentSubject = await this.SubjectModel.findById(subjectId);
+        if (!currentSubject) {
+            throw new CustomError(404, 'Subject not found.');
         }
+
+        // Check if name is being updated and if it already exists
+        if (name && name !== currentSubject.name) {
+            const subjectExist = await this.SubjectModel.findOne({ 
+                name,
+                sectionId: currentSubject.sectionId,
+                _id: { $ne: new mongoose.Types.ObjectId(subjectId) }
+            });
+            if (subjectExist) {
+                throw new CustomError(400, 'This subject name already exists in this section.');
+            }
+        }
+
+        // Check if code is being updated and if it already exists
+        if (code && code !== currentSubject.code) {
+            const codeExist = await this.SubjectModel.findOne({ 
+                code,
+                sectionId: currentSubject.sectionId,
+                _id: { $ne: new mongoose.Types.ObjectId(subjectId) }
+            });
+            if (codeExist) {
+                throw new CustomError(400, 'This subject code already exists in this section.');
+            }
+        }
+
+        const updateData: any = {};
+        if (name) updateData.name = name;
+        if (code) updateData.code = code;
+        if (hoursNumber) updateData.hoursNumber = hoursNumber;
+        if (highestDegree) updateData.highestDegree = highestDegree;
+        if (term) updateData.term = term;
 
         const updatedSubject = await this.SubjectModel.findByIdAndUpdate(
             { _id: new mongoose.Types.ObjectId(subjectId) },
-            { name },
+            updateData,
             { new: true }
-        ).select({ _id: 1, name: 1 });
-
-        if(!updatedSubject) {
-            throw new CustomError(404, 'Subject not found.');
-        }
+        ).select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, term: 1 });
 
         return {
             message: 'Subject updated successfully.'

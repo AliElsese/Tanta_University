@@ -9,8 +9,8 @@ import * as bcrypt from 'bcrypt';
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
 import { Subject } from "src/modules/subject/models/subject.schema";
-import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
-import { Grade } from "src/modules/degree/enums/grade.enum";
+import { Degree } from "src/modules/degree/models/degree.schema";
+
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
     name: string;
@@ -26,7 +26,10 @@ export class StudentService {
         private SectionModel: mongoose.Model<Section>,
 
         @InjectModel(Subject.name)
-        private SubjectModel: mongoose.Model<Subject>
+        private SubjectModel: mongoose.Model<Subject>,
+
+        @InjectModel(Degree.name)
+        private DegreeModel: mongoose.Model<Degree>
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -52,34 +55,22 @@ export class StudentService {
 
         const hashedPassword = await bcrypt.hash('123456', 12);
 
-        const subjectsIdsFirstTerm = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId), term: SubjectTerm.FirstTerm }).select({ _id: 1 });
-        const subjectsIdsSecondTerm = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId), term: SubjectTerm.SecondTerm }).select({ _id: 1 });
-        
-        const studentSubjects = [
-            {
-                yearId: new mongoose.Types.ObjectId(yearId),
-                term: SubjectTerm.FirstTerm,
-                subjectsIds: subjectsIdsFirstTerm,
-                GBA: 0,
-                grade: Grade.Fail
-            },
-            {
-                yearId: new mongoose.Types.ObjectId(yearId),
-                term: SubjectTerm.SecondTerm,
-                subjectsIds: subjectsIdsSecondTerm,
-                GBA: 0,
-                grade: Grade.Fail
-            }
-        ]
-
         const newStudent = await this.StudentModel.create({
             name, nationalId, gender, universityId,
             passwordHash: hashedPassword,
             phoneNumber, email,
             sectionId: section._id,
-            yearIds: [new mongoose.Types.ObjectId(yearId)],
-            academicYears: studentSubjects
+            yearIds: [new mongoose.Types.ObjectId(yearId)]
         });
+
+        const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) }).select({ _id: 1 });
+        
+        const studentSubjects = subjects.map(subject => ({
+            subjectId: subject._id,
+            studentId: newStudent._id
+        }));
+
+        await this.DegreeModel.create(studentSubjects);
 
         return {
             message: 'Student added successfully.'

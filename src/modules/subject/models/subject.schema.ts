@@ -13,7 +13,7 @@ export class Subject extends Document {
     @Prop({ required: [true, 'Subject Code is required'] })
     code: string;
 
-    @Prop({ required: [true, 'Subject Hours is required'], default: '0' })
+    @Prop({ required: [true, 'Subject Hours is required'], default: '3' })
     hoursNumber: string;
 
     @Prop({ required: [true, 'Highest Degree is required'] })

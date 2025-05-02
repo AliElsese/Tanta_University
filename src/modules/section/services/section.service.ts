@@ -5,7 +5,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Section } from "../models/section.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
 @Injectable()
 export class SectionService {
@@ -17,15 +16,21 @@ export class SectionService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addSection(sectionDto: NewSectionDto) {
-        const { name } = sectionDto;
+        const { name, slug } = sectionDto;
 
-        const sectionExist = await this.SectionModel.findOne({ name });
+        const sectionExist = await this.SectionModel.findOne({ 
+            $or: [
+                { name },
+                { slug: slug.toUpperCase() }
+            ]
+        });
         if(sectionExist) {
-            throw new CustomError(400, 'This section already exist.');
+            throw new CustomError(400, 'This section name or slug already exists.');
         }
 
         const newSection = await this.SectionModel.create({
-            name
+            name,
+            slug: slug.toUpperCase()
         });
 
         return {
@@ -35,27 +40,19 @@ export class SectionService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getSections(paginationDto: PaginationDto) {
-        const { page, limit } = paginationDto;
-        const skip = (page - 1) * limit;
-        const sections = await this.SectionModel.find({ })
-            .skip(skip)
-            .limit(limit)
-            .select({ _id: 1, name: 1 });
+    async getSections() {
+        const sections = await this.SectionModel.find({ }).select({ _id: 1, name: 1, slug: 1 });
 
         return {
             message: 'Sections data.',
-            sections,
-            totalPages: Math.ceil(sections.length / limit),
-            currentPage: page,
-            totalSections: sections.length
+            sections
         }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getSection(sectionId: string) {
-        const section = await this.SectionModel.findById({ _id: new mongoose.Types.ObjectId(sectionId) }).select({ _id: 1, name: 1 });
+        const section = await this.SectionModel.findById({ _id: new mongoose.Types.ObjectId(sectionId) }).select({ _id: 1, name: 1, slug: 1 });
 
         if(!section) {
             throw new CustomError(404, 'Section not found.');
@@ -70,16 +67,26 @@ export class SectionService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async updateSection(sectionId: string, sectionDto: UpdateSectionDto) {
-        const { name } = sectionDto;
+        const { name, slug } = sectionDto;
 
-        const sectionExist = await this.SectionModel.findOne({ name });
-        if(sectionExist && sectionExist._id.toString() !== sectionId) {
-            throw new CustomError(400, 'This section name already exists.');
+        const sectionExist = await this.SectionModel.findOne({ 
+            $and: [
+                {
+                    $or: [
+                        { name },
+                        { slug: slug.toUpperCase() }
+                    ]
+                },
+                { _id: { $ne: new mongoose.Types.ObjectId(sectionId) } }
+            ]
+        });
+        if(sectionExist) {
+            throw new CustomError(400, 'This section name or slug already exists.');
         }
 
         const updatedSection = await this.SectionModel.findByIdAndUpdate(
             { _id: new mongoose.Types.ObjectId(sectionId) },
-            { name },
+            { name, slug: slug.toUpperCase() },
             { new: true }
         );
 
