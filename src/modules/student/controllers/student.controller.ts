@@ -146,7 +146,7 @@ export class StudentController {
         }
     })
     async getStudentYearsByName(@Param('id') studentId: string) {
-        return this.StudentService.getStudentYearsByName(studentId);
+        return this.StudentService.getStudentYears(studentId);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

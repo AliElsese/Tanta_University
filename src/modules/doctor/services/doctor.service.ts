@@ -119,7 +119,7 @@ export class DoctorService {
             { _id: new mongoose.Types.ObjectId(doctorId) },
             { name, nationalId, major, phoneNumber, email },
             { new: true }
-        ).select({ _id: 1, name: 1, nationalId: 1, major: 1, phoneNumber: 1, email: 1 });
+        );
 
         return {
             message: 'Doctor updated successfully.'

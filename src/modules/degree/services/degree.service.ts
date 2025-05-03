@@ -86,7 +86,7 @@ export class DegreeService {
 
         const degrees = subjectDegrees.map(degree => ({
             _id: degree._id,
-            subjectDegree: degree.subjectDegree,
+            subjectDegree: degree,
             GBA: degree.GBA,
             studentName: degree.studentId.name
         }));

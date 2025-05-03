@@ -10,6 +10,7 @@ import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { Degree } from "src/modules/degree/models/degree.schema";
+import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
 
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
@@ -64,11 +65,12 @@ export class StudentService {
         });
 
         const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) }).select({ _id: 1 });
-        
-        const studentSubjects = subjects.map(subject => ({
-            subjectId: subject._id,
-            studentId: newStudent._id
-        }));
+
+        const studentSubjects = {
+            studentId: newStudent._id,
+            yearId: new mongoose.Types.ObjectId(yearId),
+            subjectsDegrees: subjects
+        }
 
         await this.DegreeModel.create(studentSubjects);
 
@@ -146,17 +148,27 @@ export class StudentService {
     async updateStudent(studentId: string, studentDto: UpdateStudentDto) {
         const { name, nationalId, universityId, phoneNumber, email } = studentDto;
 
+        const currentStudent = await this.StudentModel.findById(studentId);
+        if (!currentStudent) {
+            throw new CustomError(404, 'Student not found.');
+        }
+
         const studentExist = await this.StudentModel.findOne({ 
-            $or: [
-                { nationalId, _id: { $ne: new mongoose.Types.ObjectId(studentId) } },
-                { email, _id: { $ne: new mongoose.Types.ObjectId(studentId) } },
-                { universityId, _id: { $ne: new mongoose.Types.ObjectId(studentId) } },
-                { phoneNumber, _id: { $ne: new mongoose.Types.ObjectId(studentId) } }
+            $and: [
+                {
+                    $or: [
+                        { nationalId },
+                        { email },
+                        { universityId },
+                        { phoneNumber }
+                    ]
+                },
+                { sectionId: currentStudent.sectionId },
+                { _id: { $ne: new mongoose.Types.ObjectId(studentId) } }
             ]
         });
-        
         if(studentExist) {
-            throw new CustomError(400, 'This national ID, email, university ID or phone number already exists.');
+            throw new CustomError(400, 'This national ID, email, or phone number already exists in this section.');
         }
 
         const updatedStudent = await this.StudentModel.findByIdAndUpdate(
@@ -183,6 +195,8 @@ export class StudentService {
             throw new CustomError(404, 'Student not found.');
         }
 
+        const studentDegrees = await this.DegreeModel.findOneAndDelete({ studentId: new mongoose.Types.ObjectId(studentId) });
+
         return {
             message: 'Student deleted successfully.'
         }
@@ -190,7 +204,7 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getStudentYearsByName(studentId: string) {
+    async getStudentYears(studentId: string) {
         const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
             .populate<{ yearIds: PopulatedYear[] }>('yearIds', { _id: 1, name: 1 });
         

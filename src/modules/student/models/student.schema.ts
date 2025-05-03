@@ -3,6 +3,7 @@ import { Document, Types } from "mongoose";
 import { Gender } from "../enums/student.enum";
 import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
 import { Grade } from "src/modules/degree/enums/grade.enum";
+
 interface AcademicYear {
     yearId: Types.ObjectId;
     term: string;
