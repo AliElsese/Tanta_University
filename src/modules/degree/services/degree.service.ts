@@ -59,13 +59,19 @@ export class DegreeService {
         }
 
         // Calculate GBA for each student and create degrees
-        const degreesToCreate = studentDegrees.map(studentDegree => ({
-            subjectDegree: studentDegree.subjectDegree,
-            GBA: this.DegreeCalcService.calculateGBA(Number(highestDegree), Number(studentDegree.subjectDegree)),
-            grade: this.DegreeCalcService.calculateAcademicGrade(Number(this.DegreeCalcService.calculateGBA(Number(highestDegree), Number(studentDegree.subjectDegree)))),
-            studentId: new mongoose.Types.ObjectId(studentDegree.studentId),
-            subjectId: new mongoose.Types.ObjectId(subjectId),
-            yearId: subject.yearId
+        const degreesToCreate = await Promise.all(studentDegrees.map(async (studentDegree) => {
+            const gba = await this.DegreeCalcService.calculateGBA(Number(highestDegree), Number(studentDegree.subjectDegree));
+            const grade = await this.DegreeCalcService.calculateAcademicGrade(Number(gba));
+        
+            return {
+                subjectDegree: studentDegree.subjectDegree,
+                GBA: gba,
+                grade: grade,
+                term: subject.term,
+                studentId: new mongoose.Types.ObjectId(studentDegree.studentId),
+                subjectId: new mongoose.Types.ObjectId(subjectId),
+                yearId: subject.yearId
+            };
         }));
 
         await this.DegreeModel.insertMany(degreesToCreate);
