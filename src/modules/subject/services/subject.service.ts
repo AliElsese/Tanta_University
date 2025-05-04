@@ -137,7 +137,7 @@ export class SubjectService {
         const subject = await this.SubjectModel.findById({ _id: new mongoose.Types.ObjectId(subjectId) })
             .populate<{ doctorId: PopulatedDoctor }>('doctorId', { _id: 0, name: 1 })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, doctorId: 1, yearId: 1 });
+            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, term: 1, doctorId: 1, yearId: 1 });
 
         if(!subject) {
             throw new CustomError(404, 'Subject not found.');
@@ -149,6 +149,7 @@ export class SubjectService {
             code: subject.code,
             hoursNumber: subject.hoursNumber,
             highestDegree: subject.highestDegree,
+            term: subject.term,
             doctorName: subject.doctorId.name,
             yearName: subject.yearId.name
         }
