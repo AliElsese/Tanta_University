@@ -108,7 +108,7 @@ export class StudentService {
             .skip(skip)
             .limit(limit)
             .populate<{ yearIds: PopulatedYear[] }>('yearIds', { _id: 0, name: 1 })
-            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, yearIds: 1 });
+            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, hourCost: 1, yearIds: 1 });
         
         const newStudents = students.map((student) => {
             return {
@@ -119,6 +119,7 @@ export class StudentService {
                 universityId: student.universityId,
                 phoneNumber: student.phoneNumber,
                 email: student.email,
+                hourCost: student.hourCost,
                 yearName: student.yearIds[student.yearIds.length - 1]?.name || ''
             }
         })
@@ -136,7 +137,7 @@ export class StudentService {
 
     async getStudent(studentId: string) {
         const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
-            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1 });
+            .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, hourCost: 1 });
 
         if(!student) {
             throw new CustomError(404, 'Student not found.');
@@ -149,7 +150,8 @@ export class StudentService {
             gender: student.gender,
             universityId: student.universityId,
             phoneNumber: student.phoneNumber,
-            email: student.email
+            email: student.email,
+            hourCost: student.hourCost
         }
 
         return {

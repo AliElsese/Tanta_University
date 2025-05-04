@@ -41,6 +41,27 @@ export class DegreeController {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR, UserRole.STUDENT)
+    @Get('findOne/:id')
+    @ApiOperation({ summary: 'Get single degree' })
+    @ApiParam({ name: 'id', required: true, type: String, description: 'ID of the degree' })
+    @ApiResponse({ status: 200, description: 'subject degree' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async findOne(@Param('id') degreeId: string) {
+        return this.DegreeService.showSingleDegree(degreeId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.EMPLOYEE, UserRole.DOCTOR, UserRole.STUDENT)
     @Get('showSubjectDegrees/:id')
     @ApiOperation({ summary: 'Get subject degrees' })
     @ApiParam({ name: 'id', required: true, type: String, description: 'ID of the subject' })

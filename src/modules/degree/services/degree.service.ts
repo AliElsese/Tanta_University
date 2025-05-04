@@ -78,6 +78,21 @@ export class DegreeService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    async showSingleDegree(degreeId: string) {
+        const subjectDegree = await this.DegreeModel.find({ _id: new mongoose.Types.ObjectId(degreeId) }).select({ _id: 1, subjectDegree: 1 });
+
+        if (!subjectDegree) {
+            throw new CustomError(404, 'Degree not found.');
+        }
+
+        return {
+            message: 'Subject degree',
+            subjectDegree
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     async showSubjectDegrees(subjectId: string) {
         const subjectDegrees = await this.DegreeModel.find({ 
             subjectId: new mongoose.Types.ObjectId(subjectId)
