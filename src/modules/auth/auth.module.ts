@@ -12,6 +12,7 @@ import { AuthController } from "./controllers/auth.controller";
 import { EmployeeService } from "../employee/services/employee.service";
 import { DoctorService } from "../doctor/services/doctor.service";
 import { StudentService } from "../student/services/student.service";
+import { StudentSubjectsSchema } from "../student/models/studentSubjects.schema";
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { StudentService } from "../student/services/student.service";
             { name: 'Employee', schema: EmployeeSchema },
             { name: 'Doctor', schema: DoctorSchema },
             { name: 'Student', schema: StudentSchema },
+            { name: 'StudentSubjects', schema: StudentSubjectsSchema },
             { name: 'Section', schema: SectionSchema },
             { name: 'Subject', schema: SubjectSchema },
             { name: 'Degree', schema: DegreeSchema }

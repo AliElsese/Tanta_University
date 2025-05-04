@@ -10,7 +10,7 @@ import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { Degree } from "src/modules/degree/models/degree.schema";
-import { SubjectTerm } from "src/modules/subject/enums/subject.enum";
+import { StudentSubjects } from "../models/studentSubjects.schema";
 
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
@@ -29,8 +29,8 @@ export class StudentService {
         @InjectModel(Subject.name)
         private SubjectModel: mongoose.Model<Subject>,
 
-        @InjectModel(Degree.name)
-        private DegreeModel: mongoose.Model<Degree>
+        @InjectModel(StudentSubjects.name)
+        private StudentSubjectsModel: mongoose.Model<StudentSubjects>,
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -66,13 +66,7 @@ export class StudentService {
 
         const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) }).select({ _id: 1 });
 
-        const studentSubjects = {
-            studentId: newStudent._id,
-            yearId: new mongoose.Types.ObjectId(yearId),
-            subjectsDegrees: subjects
-        }
-
-        await this.DegreeModel.create(studentSubjects);
+        await this.StudentSubjectsModel.create({ studentId: newStudent._id, subjectIds: subjects });
 
         return {
             message: 'Student added successfully.'
@@ -195,7 +189,7 @@ export class StudentService {
             throw new CustomError(404, 'Student not found.');
         }
 
-        const studentDegrees = await this.DegreeModel.findOneAndDelete({ studentId: new mongoose.Types.ObjectId(studentId) });
+        // const studentDegrees = await this.DegreeModel.findOneAndDelete({ studentId: new mongoose.Types.ObjectId(studentId) });
 
         return {
             message: 'Student deleted successfully.'
