@@ -257,11 +257,11 @@ export class SubjectService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     // Get students enrolled in a subject
-    async getSubjectStudents(subjectId: string, paginationDto: PaginationDto) {
+    async getSubjectStudents(subjectName: string, paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
 
-        const subject = await this.SubjectModel.findById(subjectId);
+        const subject = await this.SubjectModel.findOne({ name: subjectName });
         if (!subject) {
             throw new CustomError(404, 'Subject not found.');
         }

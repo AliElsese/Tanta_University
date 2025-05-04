@@ -151,9 +151,9 @@ export class SubjectController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Get('getSubjectStudents/:id')
+    @Get('getSubjectStudents/:name')
     @ApiOperation({ summary: 'Get students enrolled in a subject' })
-    @ApiParam({ name: 'id', required: true, description: 'The ID of the subject' })
+    @ApiParam({ name: 'name', required: true, description: 'The Name of the subject' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Students enrolled in this subject' })
@@ -168,8 +168,8 @@ export class SubjectController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async getSubjectStudents(@Param('id') subjectId: string, @Query() paginationDto: PaginationDto) {
-        return this.SubjectService.getSubjectStudents(subjectId, paginationDto);
+    async getSubjectStudents(@Param('name') subjectName: string, @Query() paginationDto: PaginationDto) {
+        return this.SubjectService.getSubjectStudents(subjectName, paginationDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

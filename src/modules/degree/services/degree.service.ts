@@ -93,9 +93,14 @@ export class DegreeService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async showSubjectDegrees(subjectId: string) {
+    async showSubjectDegrees(subjectName: string) {
+        const subject = await this.SubjectModel.findOne({ name: subjectName });
+        if(!subject) {
+            throw new CustomError(404, 'Subject not found.')
+        }
+
         const subjectDegrees = await this.DegreeModel.find({ 
-            subjectId: new mongoose.Types.ObjectId(subjectId)
+            subjectId: subject._id
         })
         .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 0, name: 1 })
         .select({ _id: 1, subjectDegree: 1, GBA: 1, grade: 1, studentId: 1, subjectId: 1 });
@@ -105,7 +110,7 @@ export class DegreeService {
             subjectDegree: degree.subjectDegree,
             GBA: degree.GBA,
             grade: degree.grade,
-            studentName: degree.studentId
+            studentName: degree.studentId.name
         }));
 
         return {
