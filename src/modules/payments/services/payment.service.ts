@@ -37,7 +37,7 @@ export class PaymentService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getStudentPayments(studentId: string) {
-        const payments = await this.PaymentModel.findOne({ studentId: new mongoose.Types.ObjectId(studentId) })
+        const payments = await this.PaymentModel.find({ studentId: new mongoose.Types.ObjectId(studentId) })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
             .select({ _id: 1, yearId: 1, yearCost: 1, isPaid: 1 });
     
@@ -54,7 +54,7 @@ export class PaymentService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getYearPayments(yearId: string) {
-        const payments = await this.PaymentModel.findOne({ yearId: new mongoose.Types.ObjectId(yearId) })
+        const payments = await this.PaymentModel.find({ yearId: new mongoose.Types.ObjectId(yearId) })
             .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 1, name: 1 })
             .select({ _id: 1, studentId: 1, yearCost: 1, isPaid: 1 });
     
