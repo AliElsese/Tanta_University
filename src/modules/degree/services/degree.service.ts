@@ -79,7 +79,7 @@ export class DegreeService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async showSingleDegree(degreeId: string) {
-        const subjectDegree = await this.DegreeModel.find({ _id: new mongoose.Types.ObjectId(degreeId) }).select({ _id: 1, subjectDegree: 1 });
+        const subjectDegree = await this.DegreeModel.findOne({ _id: new mongoose.Types.ObjectId(degreeId) }).select({ _id: 1, subjectDegree: 1, subjectId: 1 });
 
         if (!subjectDegree) {
             throw new CustomError(404, 'Degree not found.');
@@ -123,7 +123,7 @@ export class DegreeService {
         if (!subject) {
             throw new CustomError(404, 'Subject not found.');
         }
-
+        
         const gba = await this.DegreeCalcService.calculateGBA(Number(subject.highestDegree), Number(subjectDegree));
         const grade = await this.DegreeCalcService.calculateAcademicGrade(Number(gba));
 

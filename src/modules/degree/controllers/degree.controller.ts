@@ -83,7 +83,7 @@ export class DegreeController {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Roles(UserRole.EMPLOYEE)
-    @Put('updateDegree/:degreeId')
+    @Put('updateDegree/:id')
     @ApiOperation({ summary: 'Update degree' })
     @ApiParam({ name: 'degreeId', required: true, type: String, description: 'ID of the degree' })
     @ApiBody({ description: 'Degree inputs', type: UpdateDegreeDto })
@@ -98,7 +98,7 @@ export class DegreeController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async updateStudentDegree(@Param() degreeId: string, @Body() updateDegreeDto: UpdateDegreeDto) {
+    async updateStudentDegree(@Param('id') degreeId: string, @Body() updateDegreeDto: UpdateDegreeDto) {
         return this.DegreeService.updateDegree(degreeId, updateDegreeDto);
     }
 
