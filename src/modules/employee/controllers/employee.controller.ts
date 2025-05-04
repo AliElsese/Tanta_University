@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
 import { EmployeeService } from "../services/employee.service";
 import { NewEmployeeDto } from "../dtos/newEmployee.dto";
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
+import { UpdateEmployeeDto } from "../dtos/updateEmployee.dto";
 
 @Controller('employee')
 @ApiTags('employee')
@@ -40,6 +41,29 @@ export class EmployeeController {
     @ApiResponse({ status: 200, description: 'Employee data' })
     async findOne(@Param() employeeId: string) {
         return this.EmployeeService.getEmployee(employeeId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Put('updateOne/:id')
+    @ApiOperation({ summary: 'Update employee' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the employee' })
+    @ApiBody({ description: 'Employee update inputs', type: UpdateEmployeeDto })
+    @ApiResponse({ status: 200, description: 'Employee updated successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiResponse({ status: 404, description: 'Employee not found' })
+    @ApiResponse({ status: 400, description: 'Employee name already exists' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async updateOne(@Param('id') employeeId: string, @Body() employeeDto: UpdateEmployeeDto) {
+        return this.EmployeeService.updateEmployee(employeeId, employeeDto);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

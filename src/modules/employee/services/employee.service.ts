@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
+import { UpdateEmployeeDto } from "../dtos/updateEmployee.dto";
 
 @Injectable()
 export class EmployeeService {
@@ -22,6 +23,7 @@ export class EmployeeService {
         const userExist = await this.EmployeeModel.findOne({ 
             $or: [
                 { nationalId },
+                { phoneNumber },
                 { email }
             ]
         });
@@ -69,6 +71,43 @@ export class EmployeeService {
         return {
             message: 'Employee data.',
             employee
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async updateEmployee(employeeId: string, employeeDto: UpdateEmployeeDto) {
+        const { name, nationalId, phoneNumber, email } = employeeDto;
+
+        const currentEmployee = await this.EmployeeModel.findById(employeeId);
+        if (!currentEmployee) {
+            throw new CustomError(404, 'Employee not found.');
+        }
+
+        const employeeExist = await this.EmployeeModel.findOne({ 
+            $and: [
+                {
+                    $or: [
+                        { nationalId },
+                        { email },
+                        { phoneNumber }
+                    ]
+                },
+                { _id: { $ne: new mongoose.Types.ObjectId(employeeId) } }
+            ]
+        });
+        if(employeeExist) {
+            throw new CustomError(400, 'This national ID, email, or phone number already exists in this section.');
+        }
+
+        const updatedEmployee = await this.EmployeeModel.findByIdAndUpdate(
+            { _id: new mongoose.Types.ObjectId(employeeId) },
+            { name, nationalId, phoneNumber, email },
+            { new: true }
+        );
+
+        return {
+            message: 'Employee updated successfully.'
         }
     }
 
