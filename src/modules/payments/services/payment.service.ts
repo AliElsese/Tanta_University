@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Payment } from "../models/payment.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
+import { ConfirmPaymentDto } from "../dtos/confirmPayment.dto";
 
 export interface PopulatedYear {
     name: string;
@@ -70,9 +71,9 @@ export class PaymentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async confirmStudentPayment(paymentId: string) {
+    async confirmStudentPayment(paymentDto: ConfirmPaymentDto) {
         const payment = await this.PaymentModel.findByIdAndUpdate(
-            { _id: new mongoose.Types.ObjectId(paymentId) },
+            { _id: new mongoose.Types.ObjectId(paymentDto.paymentId) },
             { isPaid: true },
             { new: true }
         )

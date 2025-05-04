@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, Ap
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
+import { ConfirmPaymentDto } from "../dtos/confirmPayment.dto";
 
 @Controller('payment')
 @ApiTags('payment')
@@ -89,7 +90,7 @@ export class PaymentController {
     @Roles(UserRole.EMPLOYEE)
     @Post('confirmPayment')
     @ApiOperation({ summary: 'Confirm student year payment' })
-    @ApiBody({ description: 'Student update payment', type: String })
+    @ApiBody({ description: 'Student update payment', type: ConfirmPaymentDto })
     @ApiResponse({ status: 200, description: 'Student payment confirmed' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiResponse({ status: 404, description: 'Student not found' })
@@ -102,7 +103,7 @@ export class PaymentController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async confirmPayment(@Body('paymentId') paymentId: string) {
-        return this.PaymentService.confirmStudentPayment(paymentId);
+    async confirmPayment(@Body() paymentDto: ConfirmPaymentDto) {
+        return this.PaymentService.confirmStudentPayment(paymentDto);
     }
 }
