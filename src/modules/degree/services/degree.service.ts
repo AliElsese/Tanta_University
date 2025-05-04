@@ -113,11 +113,12 @@ export class DegreeService {
             throw new CustomError(404, 'Subject not found.');
         }
 
-        const GBA = ((Number(subjectDegree) / Number(subject.highestDegree)) * 4).toFixed(2);
+        const gba = await this.DegreeCalcService.calculateGBA(Number(subject.highestDegree), Number(subjectDegree));
+        const grade = await this.DegreeCalcService.calculateAcademicGrade(Number(gba));
 
         const degree = await this.DegreeModel.findByIdAndUpdate(
             { _id: new mongoose.Types.ObjectId(degreeId) }, 
-            { subjectDegree, GBA }, 
+            { subjectDegree, GBA: gba, grade }, 
             { new: true }
         );
         
