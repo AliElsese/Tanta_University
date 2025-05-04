@@ -9,11 +9,6 @@ import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
 import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 import { DegreeCalcService } from "src/modules/shared/services/degreeCalc.service";
 
-interface StudentDegree {
-    studentId: string;
-    subjectDegree: string;
-}
-
 export interface PopulatedStudent {
     name: string;
 }
@@ -85,16 +80,17 @@ export class DegreeService {
 
     async showSubjectDegrees(subjectId: string) {
         const subjectDegrees = await this.DegreeModel.find({ 
-            subjectId: { $eq: new mongoose.Types.ObjectId(subjectId) }
+            subjectId: new mongoose.Types.ObjectId(subjectId)
         })
         .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 0, name: 1 })
-        .select({ _id: 1, subjectDegree: 1, GBA: 1, studentId: 1, subjectId: 1 });
+        .select({ _id: 1, subjectDegree: 1, GBA: 1, grade: 1, studentId: 1, subjectId: 1 });
 
         const degrees = subjectDegrees.map(degree => ({
             _id: degree._id,
-            subjectDegree: degree,
+            subjectDegree: degree.subjectDegree,
             GBA: degree.GBA,
-            studentName: degree.studentId.name
+            grade: degree.grade,
+            studentName: degree.studentId
         }));
 
         return {
