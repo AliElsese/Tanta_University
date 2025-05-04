@@ -55,7 +55,7 @@ export class PaymentService {
 
     async getYearPayments(yearId: string) {
         const payments = await this.PaymentModel.findOne({ yearId: new mongoose.Types.ObjectId(yearId) })
-            .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 0, name: 1 })
+            .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 1, name: 1 })
             .select({ _id: 1, studentId: 1, yearCost: 1, isPaid: 1 });
     
         if(!payments) {
