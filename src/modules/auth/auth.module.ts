@@ -13,6 +13,7 @@ import { EmployeeService } from "../employee/services/employee.service";
 import { DoctorService } from "../doctor/services/doctor.service";
 import { StudentService } from "../student/services/student.service";
 import { StudentSubjectsSchema } from "../student/models/studentSubjects.schema";
+import { PaymentSchema } from "../payments/models/payment.schema";
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { StudentSubjectsSchema } from "../student/models/studentSubjects.schema"
             { name: 'StudentSubjects', schema: StudentSubjectsSchema },
             { name: 'Section', schema: SectionSchema },
             { name: 'Subject', schema: SubjectSchema },
+            { name: 'Payment', schema: PaymentSchema },
             { name: 'Degree', schema: DegreeSchema }
         ]),
     ],

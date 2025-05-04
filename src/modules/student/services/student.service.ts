@@ -11,6 +11,7 @@ import { Section } from "src/modules/section/models/section.schema";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { Degree } from "src/modules/degree/models/degree.schema";
 import { StudentSubjects } from "../models/studentSubjects.schema";
+import { Payment } from "src/modules/payments/models/payment.schema";
 
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
@@ -31,12 +32,15 @@ export class StudentService {
 
         @InjectModel(StudentSubjects.name)
         private StudentSubjectsModel: mongoose.Model<StudentSubjects>,
+
+        @InjectModel(Payment.name)
+        private PaymentModel: mongoose.Model<Payment>
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addStudent(studentDto: NewStudentDto) {
-        const { name, nationalId, gender, universityId, phoneNumber, email, sectionName, yearId } = studentDto;
+        const { name, nationalId, gender, universityId, phoneNumber, email, hourCost, sectionName, yearId } = studentDto;
         const section = await this.SectionModel.findOne({ name: sectionName });
         if(!section) {
             throw new CustomError(404, 'Section not found.');
@@ -59,14 +63,31 @@ export class StudentService {
         const newStudent = await this.StudentModel.create({
             name, nationalId, gender, universityId,
             passwordHash: hashedPassword,
-            phoneNumber, email,
+            phoneNumber, email, hourCost: Number(hourCost),
             sectionId: section._id,
             yearIds: [new mongoose.Types.ObjectId(yearId)]
         });
 
-        const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) }).select({ _id: 1 });
+        const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) }).select({ _id: 1, hoursNumber: 1 });
 
-        await this.StudentSubjectsModel.create({ studentId: newStudent._id, subjectIds: subjects });
+        const subjectIds = subjects.map(subject => (
+            subject._id
+        ));
+        await this.StudentSubjectsModel.create({ studentId: newStudent._id, yearId: new mongoose.Types.ObjectId(yearId), subjectIds: subjectIds });
+
+        if(subjects.length !== 0) {
+            let totalHours = 0;
+            subjects.forEach(subject => {
+                totalHours += Number(subject.hoursNumber)
+            })
+            const yearCost: Number = Number(hourCost) * totalHours;
+
+            await this.PaymentModel.create({
+                studentId: newStudent._id,
+                yearId: new mongoose.Types.ObjectId(yearId),
+                yearCost
+            })
+        }
 
         return {
             message: 'Student added successfully.'
@@ -140,7 +161,7 @@ export class StudentService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async updateStudent(studentId: string, studentDto: UpdateStudentDto) {
-        const { name, nationalId, universityId, phoneNumber, email } = studentDto;
+        const { name, nationalId, universityId, phoneNumber, email, hourCost } = studentDto;
 
         const currentStudent = await this.StudentModel.findById(studentId);
         if (!currentStudent) {
@@ -167,7 +188,7 @@ export class StudentService {
 
         const updatedStudent = await this.StudentModel.findByIdAndUpdate(
             { _id: new mongoose.Types.ObjectId(studentId) },
-            { name, nationalId, universityId, phoneNumber, email },
+            { name, nationalId, universityId, phoneNumber, email, hourCost: Number(hourCost) },
             { new: true }
         ).select({ _id: 1, name: 1, nationalId: 1, universityId: 1, phoneNumber: 1, email: 1 });
 

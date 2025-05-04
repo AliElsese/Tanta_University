@@ -42,6 +42,11 @@ export class NewStudentDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
+    hourCost: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
     @Matches(/^[\u0600-\u06FF\sA-Za-z]+$/, { message: 'Name must contain only Arabic or English letters' })
     sectionName: string;
     

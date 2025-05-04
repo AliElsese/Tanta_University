@@ -16,6 +16,7 @@ import { DegreeModule } from './modules/degree/degree.module';
 import { SubSectionModule } from './modules/subsection/subsection.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './modules/shared/guards/roles.guard';
+import { PaymentModule } from './modules/payments/payment.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { RolesGuard } from './modules/shared/guards/roles.guard';
     SubjectModule,
     DoctorModule,
     StudentModule,
-    DegreeModule
+    DegreeModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [AppService,

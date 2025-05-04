@@ -62,7 +62,7 @@ export class DoctorService {
 
         const { page, limit } = paginationDto;
         const skip = (page - 1) * limit;
-        const doctors = await this.DoctorModel.find({ sectionId: section._id }).skip(skip).limit(limit).select({ _id: 1, name: 1, nationalId: 1, phoneNumber: 1, email: 1 });
+        const doctors = await this.DoctorModel.find({ sectionId: section._id }).skip(skip).limit(limit).select({ _id: 1, name: 1, major: 1, nationalId: 1, phoneNumber: 1, email: 1 });
         
         return {
             message: 'Doctors data.',
@@ -76,7 +76,7 @@ export class DoctorService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getDoctor(doctorId: string) {
-        const doctor = await this.DoctorModel.findById({ _id: new mongoose.Types.ObjectId(doctorId) }).select({ _id: 1, name: 1, nationalId: 1, phoneNumber: 1, email: 1 });
+        const doctor = await this.DoctorModel.findById({ _id: new mongoose.Types.ObjectId(doctorId) }).select({ _id: 1, name: 1, major: 1, nationalId: 1, phoneNumber: 1, email: 1 });
 
         if(!doctor) {
             throw new CustomError(404, 'Doctor not found.');

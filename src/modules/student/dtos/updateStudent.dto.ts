@@ -32,4 +32,9 @@ export class UpdateStudentDto {
     @IsEmail()
     @MaxLength(50)
     email: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    hourCost: string;
 } 

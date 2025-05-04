@@ -6,6 +6,7 @@ import { StudentService } from "./services/student.service";
 import { SectionSchema } from "../section/models/section.schema";
 import { SubjectSchema } from "../subject/models/subject.schema";
 import { StudentSubjectsSchema } from "./models/studentSubjects.schema";
+import { PaymentSchema } from "../payments/models/payment.schema";
 
 @Module({
     imports: [
@@ -13,7 +14,8 @@ import { StudentSubjectsSchema } from "./models/studentSubjects.schema";
             { name: 'Student', schema: StudentSchema },
             { name: 'StudentSubjects', schema: StudentSubjectsSchema },
             { name: 'Section', schema: SectionSchema },
-            { name: 'Subject', schema: SubjectSchema }
+            { name: 'Subject', schema: SubjectSchema },
+            { name: 'Payment', schema: PaymentSchema }
         ])
     ],
     controllers: [StudentController],

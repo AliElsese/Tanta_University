@@ -31,6 +31,9 @@ export class Student extends Document {
     @Prop({ required: [true, 'Email is required'], default: '' })
     email: string;
 
+    @Prop({ required: [true, 'Hour cost is required'], default: 0 })
+    hourCost: Number;
+
     @Prop({ required: [true, 'Section is required'], type: Types.ObjectId, ref: 'Section' })
     sectionId: Types.ObjectId;
 
