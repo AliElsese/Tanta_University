@@ -10,12 +10,17 @@ import { Student } from "src/modules/student/models/student.schema";
 import { Section } from "src/modules/section/models/section.schema";
 import { Doctor } from "src/modules/doctor/models/doctor.schema";
 import { Year } from "src/modules/year/models/year.schema";
+import { StudentSubjects } from "src/modules/student/models/studentSubjects.schema";
 
 export interface PopulatedYear {
     name: string;
 }
 
 export interface PopulatedDoctor {
+    name: string;
+}
+
+export interface PopulatedStudent {
     name: string;
 }
 
@@ -35,7 +40,10 @@ export class SubjectService {
         private DoctorModel: mongoose.Model<Doctor>,
 
         @InjectModel(Year.name)
-        private YearModel: mongoose.Model<Year>
+        private YearModel: mongoose.Model<Year>,
+
+        @InjectModel(StudentSubjects.name)
+        private StudentSubjectsModel: mongoose.Model<StudentSubjects>,
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -258,15 +266,10 @@ export class SubjectService {
         }
 
         // Find students who have this subject in their academicYears array
-        const students = await this.StudentModel.find({
-            'academicYears': {
-                $elemMatch: {
-                    yearId: subject.yearId,
-                    term: subject.term,
-                    subjectsIds: { $in: [subject._id] }
-                }
-            }
-        }).skip(skip).limit(limit).select({ _id: 1, name: 1, universityId: 1 });
+        const students = await this.StudentSubjectsModel.find({ subjectIds: { $in: [subject._id] } })
+            .skip(skip).limit(limit)
+            .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 0, name: 1 })
+            .select({ _id: 1, studentId: 1 });
 
         return {
             message: 'Students enrolled in this subject.',
