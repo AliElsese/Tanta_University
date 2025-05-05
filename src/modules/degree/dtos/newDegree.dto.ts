@@ -23,8 +23,8 @@ export class NewDegreeDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsMongoId()
-    subjectId: string;
+    @IsString()
+    subjectName: string;
 
     @ApiProperty()
     @IsNotEmpty()

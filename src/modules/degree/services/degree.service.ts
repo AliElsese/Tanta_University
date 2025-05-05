@@ -28,9 +28,9 @@ export class DegreeService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async addDegree(degreeDto: NewDegreeDto) {
-        const { studentDegrees, subjectId, highestDegree } = degreeDto;
+        const { studentDegrees, subjectName, highestDegree } = degreeDto;
 
-        const subject = await this.SubjectModel.findById(subjectId);
+        const subject = await this.SubjectModel.findOne({ name: subjectName });
         if(!subject) {
             throw new CustomError(404, 'This subject not found.');
         }
@@ -44,7 +44,7 @@ export class DegreeService {
 
         // Check if any of the degrees already exist
         const existingDegrees = await this.DegreeModel.find({
-            subjectId: new mongoose.Types.ObjectId(subjectId),
+            subjectId: subject._id,
             studentId: { $in: studentIds.map(id => new mongoose.Types.ObjectId(id)) }
         });
 
@@ -64,7 +64,7 @@ export class DegreeService {
                 grade: grade,
                 term: subject.term,
                 studentId: new mongoose.Types.ObjectId(studentDegree.studentId),
-                subjectId: new mongoose.Types.ObjectId(subjectId),
+                subjectId: subject._id,
                 yearId: subject.yearId
             };
         }));
