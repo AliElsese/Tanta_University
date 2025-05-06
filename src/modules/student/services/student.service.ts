@@ -259,8 +259,13 @@ export class StudentService {
         }
 
         const subjects = await this.StudentSubjectsModel.find({ studentId: student._id, yearId: new mongoose.Types.ObjectId(yearId) })
-            .populate<{ subjectId: PopulatedSubject }>('subjectId', { _id: 1, name: 1 });
-
+            .populate<{ subjectId: PopulatedSubject }>({path: 'subjectId',
+                select: '_id name code hoursNumber highestDegree term doctorId',
+                populate: {
+                    path: 'doctorId',
+                    select: '_id name email' // whatever fields you need from the doctor
+                }
+            });
 
         return {
             message: 'Student subjects retrieved successfully.',
