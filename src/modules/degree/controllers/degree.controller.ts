@@ -119,7 +119,10 @@ export class DegreeController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async studentDegrees(@Param() yearDegreesDto: StudentYearDegreesDto) {
-        return this.DegreeService.studentYearDegrees(yearDegreesDto);
+    async studentDegrees(
+        @Param('studentId') studentId: string,
+        @Param('yearId') yearId: string
+    ) {
+        return this.DegreeService.studentYearDegrees(studentId, yearId);
     }
 }

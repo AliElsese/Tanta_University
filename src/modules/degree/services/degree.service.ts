@@ -155,9 +155,7 @@ export class DegreeService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async studentYearDegrees(yearDegreesDto: StudentYearDegreesDto) {
-        const { studentId, yearId } = yearDegreesDto;
-
+    async studentYearDegrees(studentId: string, yearId: string) {
         const studentDegrees = await this.DegreeModel.find(
             { studentId: new mongoose.Types.ObjectId(studentId), yearId: new mongoose.Types.ObjectId(yearId) }
         )
