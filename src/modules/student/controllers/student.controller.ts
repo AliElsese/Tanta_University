@@ -7,6 +7,7 @@ import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
+import { AddSubjectToStudentDto } from "../dtos/addSubjectToStudent.dto";
 
 @Controller('student')
 @ApiTags('student')
@@ -176,5 +177,49 @@ export class StudentController {
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.STUDENT, UserRole.EMPLOYEE)
+    @Post('addSubjectToStudent')
+    @ApiOperation({ summary: 'Add subject to student' })
+    @ApiBody({ description: 'Student subjects selection', type: AddSubjectToStudentDto })
+    @ApiResponse({ status: 200, description: 'Subject added to student successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async addSubjectToStudent(@Body() studentDto: AddSubjectToStudentDto) {
+        return this.StudentService.addSubjectToStudent(studentDto);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.EMPLOYEE)
+    @Delete('removeStudentSubject/:studentId/:subjectId')
+    @ApiOperation({ summary: 'Delete subject' })
+    @ApiParam({ name: 'studentId', required: true, description: 'The ID of the student' })
+    @ApiParam({ name: 'subjectId', required: true, description: 'The ID of the subject' })
+    @ApiResponse({ status: 200, description: 'Subject removed successfully' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async removeStudentSubject(
+        @Param('studentId') studentId: string,
+        @Param('subjectId') subjectId: string
+    ) {
+        return this.StudentService.removeSubjectFromStudent(studentId, subjectId);
+    }
 
 }

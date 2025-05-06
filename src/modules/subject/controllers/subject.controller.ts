@@ -126,31 +126,11 @@ export class SubjectController {
     })
     async deleteOne(@Param() subjectId: string) {
         return this.SubjectService.removeSubject(subjectId);
-    }
+    }    
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Post('addSubjectToStudent/:studentId/:subjectId')
-    @ApiOperation({ summary: 'Add subject to student' })
-    @ApiParam({ name: 'studentId', required: true, description: 'The ID of the student' })
-    @ApiParam({ name: 'subjectId', required: true, description: 'The ID of the subject' })
-    @ApiResponse({ status: 200, description: 'Subject added to student successfully' })
-    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
-    @ApiHeader({
-        name: 'Authorization',
-        description: 'Bearer token for authentication',
-        required: true,
-        schema: {
-            type: 'string',
-            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-        }
-    })
-    async addSubjectToStudent(@Param('studentId') studentId: string, @Param('subjectId') subjectId: string) {
-        return this.SubjectService.addSubjectToStudent(studentId, subjectId);
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-
+    @Roles(UserRole.EMPLOYEE)
     @Get('getSubjectStudents/:name')
     @ApiOperation({ summary: 'Get students enrolled in a subject' })
     @ApiParam({ name: 'name', required: true, description: 'The Name of the subject' })
@@ -191,5 +171,26 @@ export class SubjectController {
     })
     async getDoctorSubjects(@Param('id') doctorId: string) {
         return this.SubjectService.getDoctorSubjects(doctorId);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.STUDENT)
+    @Get('getYearSubjects/:id')
+    @ApiOperation({ summary: 'Get year subjects' })
+    @ApiParam({ name: 'id', required: true, description: 'The ID of the year' })
+    @ApiResponse({ status: 200, description: 'Year subjects' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getYearSubjects(@Param('id') yearId: string) {
+        return this.SubjectService.getYearSubjects(yearId);
     }
 }

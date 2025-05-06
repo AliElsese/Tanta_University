@@ -237,25 +237,6 @@ export class SubjectService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    // Add subjects to student
-    async addSubjectToStudent(studentId: string, subjectId: string) {
-        const student = await this.StudentModel.findByIdAndUpdate(
-            { _id: new mongoose.Types.ObjectId(studentId) },
-            { $push: { subjectIds: new mongoose.Types.ObjectId(subjectId) } },
-            { new: true }
-        );
-
-        if(!student) {
-            throw new CustomError(404, 'Student not found.');
-        }
-
-        return {
-            message: 'Subject added to student successfully.'
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-
     // Get students enrolled in a subject
     async getSubjectStudents(subjectName: string, paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
@@ -293,6 +274,22 @@ export class SubjectService {
 
         return {
             message: 'Doctor subjects.',
+            subjects
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    
+    // Get year subjects
+    async getYearSubjects(yearId: string) {
+        const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) })
+            .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, term: 1, yearId: 1 });
+        if (!subjects) {
+            throw new CustomError(404, 'Subjects not found.');
+        }
+
+        return {
+            message: 'Year subjects.',
             subjects
         }
     }

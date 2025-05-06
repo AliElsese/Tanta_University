@@ -12,6 +12,7 @@ import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentSubjects } from "../models/studentSubjects.schema";
 import { Payment } from "src/modules/payments/models/payment.schema";
 import { Degree } from "src/modules/degree/models/degree.schema";
+import { AddSubjectToStudentDto } from "../dtos/addSubjectToStudent.dto";
 
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
@@ -20,6 +21,7 @@ export interface PopulatedYear {
 
 export interface PopulatedSubject {
     name: string;
+    hoursNumber: string;
 }
 
 @Injectable()
@@ -225,6 +227,7 @@ export class StudentService {
 
         const studentSubjects = await this.StudentSubjectsModel.deleteMany({ studentId: new mongoose.Types.ObjectId(studentId) });
         const studentDegrees = await this.DegreeModel.deleteMany({ studentId: new mongoose.Types.ObjectId(studentId) });
+        const studentPayments = await this.PaymentModel.deleteMany({ studentId: new mongoose.Types.ObjectId(studentId) });
 
         return {
             message: 'Student deleted successfully.'
@@ -274,4 +277,82 @@ export class StudentService {
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
+
+    // Add subjects to student
+    async addSubjectToStudent(studentDto: AddSubjectToStudentDto) {
+        const { studentId, subjectId } = studentDto;
+
+        const subject = await this.SubjectModel.findById({ _id: new mongoose.Types.ObjectId(subjectId) });
+
+        if(!subject) {
+            throw new CustomError(404, 'Subject not found.');
+        }
+
+        const subjectEnrolled = await this.StudentSubjectsModel.create(
+            {
+                studentId: new mongoose.Types.ObjectId(studentId),
+                yearId: subject.yearId,
+                subjectId: subject._id
+            }
+        );
+
+        return {
+            message: 'Subject added to student successfully.'
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async removeSubjectFromStudent(studentId: string, subjectId: string) {
+        const subject = await this.SubjectModel.findById({ _id: new mongoose.Types.ObjectId(subjectId) });
+        if(!subject) {
+            throw new CustomError(404, 'Subject not found.');
+        }
+
+        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) });
+        if(!student) {
+            throw new CustomError(404, 'Student not found.');
+        }
+
+        const studentpayment = await this.PaymentModel.findOne(
+            { studentId: new mongoose.Types.ObjectId(studentId), yearId: subject.yearId }
+        );
+        if(studentpayment.isPaid === false) {
+            throw new CustomError(400, 'لا يمكن الغاء تسجيل الماده بعد دفع المصاريف.');
+        }
+
+        const studentSubjects = await this.StudentSubjectsModel.findOneAndDelete(
+            {
+                studentId: new mongoose.Types.ObjectId(studentId),
+                subjectId: new mongoose.Types.ObjectId(subjectId),
+                yearId: subject.yearId
+            }
+        );
+
+        const studentDegrees = await this.DegreeModel.findOneAndDelete(
+            { studentId: new mongoose.Types.ObjectId(studentId), subjectId: new mongoose.Types.ObjectId(subjectId) }
+        );
+
+        const newStudentSubjects = await this.StudentSubjectsModel.find(
+            { studentId: new mongoose.Types.ObjectId(studentId), yearId: subject.yearId  }
+        ).populate<{ subjectId: PopulatedSubject }>('subjectId', { _id: 1, name: 1, hoursNumber: 1 });;
+
+        if(newStudentSubjects.length !== 0) {
+            let totalHours = 0;
+            newStudentSubjects.forEach(subject => {
+                totalHours += Number(subject.subjectId.hoursNumber)
+            })
+            const yearCost: Number = Number(student.hourCost) * totalHours;
+
+            await this.PaymentModel.findOneAndUpdate(
+                { studentId: new mongoose.Types.ObjectId(studentId), yearId: subject.yearId },
+                { yearCost },
+                { new: true }
+            )
+        }
+
+        return {
+            message: 'Subject removed successfully.'
+        }
+    }
 }
