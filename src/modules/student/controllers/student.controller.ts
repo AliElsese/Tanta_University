@@ -199,7 +199,7 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Roles(UserRole.EMPLOYEE)
+    @Roles(UserRole.EMPLOYEE, UserRole.STUDENT)
     @Delete('removeStudentSubject/:studentId/:subjectId')
     @ApiOperation({ summary: 'Delete subject' })
     @ApiParam({ name: 'studentId', required: true, description: 'The ID of the student' })
