@@ -9,12 +9,16 @@ import * as bcrypt from 'bcrypt';
 import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
 import { Subject } from "src/modules/subject/models/subject.schema";
-import { Degree } from "src/modules/degree/models/degree.schema";
 import { StudentSubjects } from "../models/studentSubjects.schema";
 import { Payment } from "src/modules/payments/models/payment.schema";
+import { Degree } from "src/modules/degree/models/degree.schema";
 
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
+    name: string;
+}
+
+export interface PopulatedSubject {
     name: string;
 }
 
@@ -34,7 +38,10 @@ export class StudentService {
         private StudentSubjectsModel: mongoose.Model<StudentSubjects>,
 
         @InjectModel(Payment.name)
-        private PaymentModel: mongoose.Model<Payment>
+        private PaymentModel: mongoose.Model<Payment>,
+
+        @InjectModel(Degree.name)
+        private DegreeModel: mongoose.Model<Degree>
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -70,10 +77,14 @@ export class StudentService {
 
         const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) }).select({ _id: 1, hoursNumber: 1 });
 
-        const subjectIds = subjects.map(subject => (
-            subject._id
+        const studentSubjects = subjects.map(subject => (
+            {
+                studentId: newStudent._id,
+                yearId: new mongoose.Types.ObjectId(yearId),
+                subjectId: subject._id
+            }
         ));
-        await this.StudentSubjectsModel.create({ studentId: newStudent._id, yearId: new mongoose.Types.ObjectId(yearId), subjectIds: subjectIds });
+        await this.StudentSubjectsModel.insertMany(studentSubjects);
 
         if(subjects.length !== 0) {
             let totalHours = 0;
@@ -212,7 +223,8 @@ export class StudentService {
             throw new CustomError(404, 'Student not found.');
         }
 
-        // const studentDegrees = await this.DegreeModel.findOneAndDelete({ studentId: new mongoose.Types.ObjectId(studentId) });
+        const studentSubjects = await this.StudentSubjectsModel.deleteMany({ studentId: new mongoose.Types.ObjectId(studentId) });
+        const studentDegrees = await this.DegreeModel.deleteMany({ studentId: new mongoose.Types.ObjectId(studentId) });
 
         return {
             message: 'Student deleted successfully.'
@@ -241,35 +253,18 @@ export class StudentService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getStudentSubjectsByYear(studentId: string, yearId: string) {
-        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) })
-            .populate<{ academicYears: Array<{
-                yearId: PopulatedYear;
-                term: string;
-                subjectsIds: Array<{
-                    _id: mongoose.Types.ObjectId;
-                    name: string;
-                }>;
-            }> }>('academicYears.subjectsIds', { _id: 1, name: 1 })
-            .populate('academicYears.yearId', { _id: 1, name: 1 });
-
+        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) });
         if (!student) {
             throw new CustomError(404, 'Student not found.');
         }
 
-        // Filter academic years for the specified year
-        const yearSubjects = student.academicYears
-            .filter(academicYear => academicYear.yearId._id.toString() === yearId)
-            .map(academicYear => ({
-                term: academicYear.term,
-                subjects: academicYear.subjectsIds.map(subject => ({
-                    id: subject._id.toString(),
-                    name: subject.name
-                }))
-            }));
+        const subjects = await this.StudentSubjectsModel.find({ studentId: student._id, yearId: new mongoose.Types.ObjectId(yearId) })
+            .populate<{ subjectId: PopulatedSubject }>('subjectId', { _id: 1, name: 1 });
+
 
         return {
             message: 'Student subjects retrieved successfully.',
-            yearSubjects
+            subjects
         };
     }
 

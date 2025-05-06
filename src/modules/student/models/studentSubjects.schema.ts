@@ -16,8 +16,8 @@ export class StudentSubjects extends Document {
     // @Prop({ required: [true, 'Term is required'], enum: SubjectTerm })
     // term: SubjectTerm;
 
-    @Prop({ required: [true, 'Subject is required'], type: [{ type: Types.ObjectId, ref: 'Subject' }], default: [] })
-    subjectIds: Types.ObjectId[];
+    @Prop({ required: [true, 'Subject is required'], type: Types.ObjectId, ref: 'Subject' })
+    subjectId: Types.ObjectId;
 }
 
 export const StudentSubjectsSchema = SchemaFactory.createForClass(StudentSubjects);
