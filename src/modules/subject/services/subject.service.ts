@@ -267,7 +267,7 @@ export class SubjectService {
         }
 
         // Find students who have this subject in their academicYears array
-        const students = await this.StudentSubjectsModel.find({ subjectIds: { $in: [subject._id] } })
+        const students = await this.StudentSubjectsModel.find({ subjectId: subject._id })
             .skip(skip).limit(limit)
             .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 1, name: 1, universityId: 1 })
             .select({ _id: 1, studentId: 1 });
