@@ -283,9 +283,20 @@ export class StudentService {
         const { studentId, subjectId } = studentDto;
 
         const subject = await this.SubjectModel.findById({ _id: new mongoose.Types.ObjectId(subjectId) });
-
         if(!subject) {
             throw new CustomError(404, 'Subject not found.');
+        }
+
+        const student = await this.StudentModel.findById({ _id: new mongoose.Types.ObjectId(studentId) });
+        if(!student) {
+            throw new CustomError(404, 'Student not found.');
+        }
+
+        const studentpayment = await this.PaymentModel.findOne(
+            { studentId: new mongoose.Types.ObjectId(studentId), yearId: subject.yearId }
+        );
+        if(studentpayment.isPaid) {
+            throw new CustomError(400, 'لا يمكن تسجيل الماده بعد دفع المصاريف.');
         }
 
         const subjectEnrolled = await this.StudentSubjectsModel.create(
@@ -295,6 +306,24 @@ export class StudentService {
                 subjectId: subject._id
             }
         );
+
+        const newStudentSubjects = await this.StudentSubjectsModel.find(
+            { studentId: new mongoose.Types.ObjectId(studentId), yearId: subject.yearId  }
+        ).populate<{ subjectId: PopulatedSubject }>('subjectId', { _id: 1, name: 1, hoursNumber: 1 });;
+
+        if(newStudentSubjects.length !== 0) {
+            let totalHours = 0;
+            newStudentSubjects.forEach(subject => {
+                totalHours += Number(subject.subjectId.hoursNumber)
+            })
+            const yearCost: Number = Number(student.hourCost) * totalHours;
+
+            await this.PaymentModel.findOneAndUpdate(
+                { studentId: new mongoose.Types.ObjectId(studentId), yearId: subject.yearId },
+                { yearCost },
+                { new: true }
+            )
+        }
 
         return {
             message: 'Subject added to student successfully.'
@@ -317,7 +346,7 @@ export class StudentService {
         const studentpayment = await this.PaymentModel.findOne(
             { studentId: new mongoose.Types.ObjectId(studentId), yearId: subject.yearId }
         );
-        if(studentpayment.isPaid === false) {
+        if(studentpayment.isPaid) {
             throw new CustomError(400, 'لا يمكن الغاء تسجيل الماده بعد دفع المصاريف.');
         }
 
