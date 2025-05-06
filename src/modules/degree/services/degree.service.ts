@@ -10,6 +10,7 @@ import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 import { DegreeCalcService } from "src/modules/shared/services/degreeCalc.service";
 
 export interface PopulatedStudent {
+    id: string;
     name: string;
 }
 
@@ -102,7 +103,7 @@ export class DegreeService {
         const subjectDegrees = await this.DegreeModel.find({ 
             subjectId: subject._id
         })
-        .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 0, name: 1 })
+        .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 1, name: 1 })
         .select({ _id: 1, subjectDegree: 1, GBA: 1, grade: 1, studentId: 1, subjectId: 1 });
 
         const degrees = subjectDegrees.map(degree => ({
@@ -110,7 +111,7 @@ export class DegreeService {
             subjectDegree: degree.subjectDegree,
             GBA: degree.GBA,
             grade: degree.grade,
-            studentName: degree.studentId.name
+            studentId: degree.studentId
         }));
 
         return {
