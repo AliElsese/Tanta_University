@@ -14,6 +14,11 @@ export interface PopulatedStudent {
     name: string;
 }
 
+export interface PopulatedSubject {
+    name: string;
+    highestDegree: number;
+}
+
 @Injectable()
 export class DegreeService {
     constructor(
@@ -153,11 +158,30 @@ export class DegreeService {
     async studentYearDegrees(yearDegreesDto: StudentYearDegreesDto) {
         const { studentId, yearId } = yearDegreesDto;
 
-        const studentDegrees = await this.DegreeModel.find({ studentId, yearId }).populate({ path: 'subjectId', select: 'name' });
+        const studentDegrees = await this.DegreeModel.find(
+            { studentId: new mongoose.Types.ObjectId(studentId), yearId: new mongoose.Types.ObjectId(yearId) }
+        )
+        .populate<{ subjectId: PopulatedSubject }>('subjectId', { _id: 1, name: 1, term: 1, highestDegree: 1 })
+        .select({ subjectDegree: 1, GBA: 1, grade: 1 })
+
+        let allHighestDegrees = 0;
+        studentDegrees.forEach((degree) => {
+            allHighestDegrees += Number(degree.subjectId.highestDegree)
+        })
+
+        let allStudentDegrees = 0;
+        studentDegrees.forEach((degree) => {
+            allStudentDegrees += Number(degree.subjectDegree)
+        })
+
+        const yearGba = await this.DegreeCalcService.calculateGBA(Number(allHighestDegrees), Number(allStudentDegrees));
+        const yearGrade = await this.DegreeCalcService.calculateAcademicGrade(Number(yearGba));
 
         return {
             message: 'Student degrees',
-            studentDegrees
+            studentDegrees,
+            yearGba,
+            yearGrade
         }
     }
 }
