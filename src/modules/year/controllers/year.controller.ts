@@ -3,7 +3,6 @@ import { YearService } from "../services/year.service";
 import { NewYearDto } from "../dtos/newYear.dto";
 import { UpdateYearDto } from "../dtos/updateYear.dto";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
@@ -56,8 +55,8 @@ export class YearController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Param('name') name: string, @Query() paginationDto: PaginationDto) {
-        return this.YearService.getYears(name, paginationDto);
+    async findAll(@Param('name') name: string) {
+        return this.YearService.getYears(name);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

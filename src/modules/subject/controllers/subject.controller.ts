@@ -3,7 +3,6 @@ import { SubjectService } from "../services/subject.service";
 import { NewSubjectDto } from "../dtos/newSubject.dto";
 import { UpdateSubjectDto } from "../dtos/updateSubject.dto";
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags, ApiBearerAuth, ApiHeader } from "@nestjs/swagger";
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
@@ -45,8 +44,6 @@ export class SubjectController {
     @Get('findAll/:name')
     @ApiOperation({ summary: 'Get subjects' })
     @ApiParam({ name: 'name', required: true, description: 'The name of the section' })
-    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Subjects data' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiHeader({
@@ -58,8 +55,8 @@ export class SubjectController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Param('name') name: string, @Query() paginationDto: PaginationDto) {
-        return this.SubjectService.getSubjects(name, paginationDto);
+    async findAll(@Param('name') name: string) {
+        return this.SubjectService.getSubjects(name);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -134,8 +131,6 @@ export class SubjectController {
     @Get('getSubjectStudents/:name')
     @ApiOperation({ summary: 'Get students enrolled in a subject' })
     @ApiParam({ name: 'name', required: true, description: 'The Name of the subject' })
-    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Students enrolled in this subject' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiResponse({ status: 404, description: 'Subject not found' })
@@ -148,8 +143,8 @@ export class SubjectController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async getSubjectStudents(@Param('name') subjectName: string, @Query() paginationDto: PaginationDto) {
-        return this.SubjectService.getSubjectStudents(subjectName, paginationDto);
+    async getSubjectStudents(@Param('name') subjectName: string) {
+        return this.SubjectService.getSubjectStudents(subjectName);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

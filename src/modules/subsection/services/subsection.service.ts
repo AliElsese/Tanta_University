@@ -4,7 +4,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { SubSection } from "../models/subsection.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 
 interface PopulatedSection {
     name: string;
@@ -42,12 +41,8 @@ export class SubSectionService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getSections(paginationDto: PaginationDto) {
-        const { page, limit } = paginationDto;
-        const skip = (page - 1) * limit;
+    async getSections() {
         const sections = await this.SubSectionModel.find({ })
-            .skip(skip)
-            .limit(limit)
             .populate<{ mainSectionId: PopulatedSection }>('mainSectionId', { _id: 0, name: 1 })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
             .select({ _id: 1, name: 1, mainSectionId: 1, yearId: 1 });
@@ -63,10 +58,7 @@ export class SubSectionService {
 
         return {
             message: 'Sections data.',
-            newSections,
-            totalPages: Math.ceil(sections.length / limit),
-            currentPage: page,
-            totalSections: sections.length
+            newSections
         }
     }
 

@@ -5,7 +5,6 @@ import { Employee } from "../models/employee.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { UpdateEmployeeDto } from "../dtos/updateEmployee.dto";
 
 @Injectable()
@@ -45,17 +44,12 @@ export class EmployeeService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getEmployees(paginationDto: PaginationDto) {
-        const { page, limit } = paginationDto;
-        const skip = (page - 1) * limit;
-        const employees = await this.EmployeeModel.find({ }).skip(skip).limit(limit);
+    async getEmployees() {
+        const employees = await this.EmployeeModel.find({ });
         
         return {
             message: 'Employees data.',
-            employees,
-            totalPages: Math.ceil(employees.length / limit),
-            currentPage: page,
-            totalEmployees: employees.length
+            employees
         }
     }
 

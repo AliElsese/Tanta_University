@@ -6,7 +6,6 @@ import { Student } from "../models/student.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentSubjects } from "../models/studentSubjects.schema";
@@ -109,17 +108,13 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getStudents(name: string, paginationDto: PaginationDto) {
+    async getStudents(name: string) {
         const section = await this.SectionModel.findOne({ name });
         if(!section) {
             throw new CustomError(404, 'Section not found.');
         }
 
-        const { page, limit } = paginationDto;
-        const skip = (page - 1) * limit;
         const students = await this.StudentModel.find({ sectionId: section._id })
-            .skip(skip)
-            .limit(limit)
             .populate<{ yearIds: PopulatedYear[] }>('yearIds', { _id: 0, name: 1 })
             .select({ _id: 1, name: 1, nationalId: 1, gender: 1, universityId: 1, phoneNumber: 1, email: 1, hourCost: 1, yearIds: 1 });
         
@@ -139,10 +134,7 @@ export class StudentService {
 
         return {
             message: 'Students data.',
-            newStudents,
-            totalPages: Math.ceil(students.length / limit),
-            currentPage: page,
-            totalStudents: students.length
+            newStudents
         }
     }
 

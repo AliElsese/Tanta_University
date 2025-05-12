@@ -6,7 +6,6 @@ import { Doctor } from "../models/doctor.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Section } from "src/modules/section/models/section.schema";
 
 @Injectable()
@@ -54,22 +53,17 @@ export class DoctorService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getDoctors(name: string, paginationDto: PaginationDto) {
+    async getDoctors(name: string) {
         const section = await this.SectionModel.findOne({ name });
         if(!section) {
             throw new CustomError(404, 'Section not found.');
         }
 
-        const { page, limit } = paginationDto;
-        const skip = (page - 1) * limit;
-        const doctors = await this.DoctorModel.find({ sectionId: section._id }).skip(skip).limit(limit).select({ _id: 1, name: 1, major: 1, nationalId: 1, phoneNumber: 1, email: 1 });
+        const doctors = await this.DoctorModel.find({ sectionId: section._id }).select({ _id: 1, name: 1, major: 1, nationalId: 1, phoneNumber: 1, email: 1 });
         
         return {
             message: 'Doctors data.',
-            doctors,
-            totalPages: Math.ceil(doctors.length / limit),
-            currentPage: page,
-            totalDoctors: doctors.length
+            doctors
         }
     }
 

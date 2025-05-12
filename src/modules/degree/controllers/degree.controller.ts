@@ -104,6 +104,7 @@ export class DegreeController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    @Roles(UserRole.STUDENT)
     @Get('studentDegrees/:studentId/:yearId')
     @ApiOperation({ summary: 'Get student year degrees' })
     @ApiParam({ name: 'studentId', required: true, type: String, description: 'ID of the student' })

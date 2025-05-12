@@ -5,7 +5,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Subject } from "../models/subject.schema";
 import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { Student } from "src/modules/student/models/student.schema";
 import { Section } from "src/modules/section/models/section.schema";
 import { Doctor } from "src/modules/doctor/models/doctor.schema";
@@ -104,17 +103,13 @@ export class SubjectService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getSubjects(name: string, paginationDto: PaginationDto) {
+    async getSubjects(name: string) {
         const section = await this.SectionModel.findOne({ name });
         if(!section) {
             throw new CustomError(404, 'Section not found.');
         }
 
-        const { page, limit } = paginationDto;
-        const skip = (page - 1) * limit;
         const subjects = await this.SubjectModel.find({ sectionId: section._id })
-            .skip(skip)
-            .limit(limit)
             .populate<{ doctorId: PopulatedDoctor }>('doctorId', { _id: 0, name: 1 })
             .populate<{ yearId: PopulatedYear }>('yearId', { _id: 0, name: 1 })
             .select({ _id: 1, name: 1, code: 1, hoursNumber: 1, highestDegree: 1, doctorId: 1, yearId: 1 });
@@ -133,10 +128,7 @@ export class SubjectService {
 
         return {
             message: 'Subjects data.',
-            newSubjects,
-            totalPages: Math.ceil(subjects.length / limit),
-            currentPage: page,
-            totalSubjects: subjects.length
+            newSubjects
         }
     }
 
@@ -238,10 +230,7 @@ export class SubjectService {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     // Get students enrolled in a subject
-    async getSubjectStudents(subjectName: string, paginationDto: PaginationDto) {
-        const { page, limit } = paginationDto;
-        const skip = (page - 1) * limit;
-
+    async getSubjectStudents(subjectName: string) {
         const subject = await this.SubjectModel.findOne({ name: subjectName });
         if (!subject) {
             throw new CustomError(404, 'Subject not found.');
@@ -249,16 +238,12 @@ export class SubjectService {
 
         // Find students who have this subject in their academicYears array
         const students = await this.StudentSubjectsModel.find({ subjectId: subject._id })
-            .skip(skip).limit(limit)
             .populate<{ studentId: PopulatedStudent }>('studentId', { _id: 1, name: 1, universityId: 1 })
             .select({ _id: 1, studentId: 1 });
 
         return {
             message: 'Students enrolled in this subject.',
-            students,
-            totalPages: Math.ceil(students.length / limit),
-            currentPage: page,
-            totalStudents: students.length
+            students
         }
     }
 

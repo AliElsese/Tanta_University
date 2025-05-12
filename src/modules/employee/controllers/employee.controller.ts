@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/
 import { EmployeeService } from "../services/employee.service";
 import { NewEmployeeDto } from "../dtos/newEmployee.dto";
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { UpdateEmployeeDto } from "../dtos/updateEmployee.dto";
 
 @Controller('employee')
@@ -26,11 +25,9 @@ export class EmployeeController {
 
     @Get('findAll')
     @ApiOperation({ summary: 'Get employees' })
-    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Employees data' })
-    async findAll(@Query() paginationDto: PaginationDto) {
-        return this.EmployeeService.getEmployees(paginationDto);
+    async findAll() {
+        return this.EmployeeService.getEmployees();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

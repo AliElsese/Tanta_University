@@ -3,7 +3,6 @@ import { DoctorService } from "../services/doctor.service";
 import { NewDoctorDto } from "../dtos/newDoctor.dto";
 import { UpdateDoctorDto } from "../dtos/updateDoctor.dto";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { PaginationDto } from "src/modules/shared/dtos/pagination.dto";
 import { RolesGuard } from "src/modules/shared/guards/roles.guard";
 import { Roles } from "src/modules/shared/decorators/roles.decorator";
 import { UserRole } from "src/modules/shared/enums/roles.enum";
@@ -43,8 +42,6 @@ export class DoctorController {
     @Get('findAll/:name')
     @ApiOperation({ summary: 'Get doctors' })
     @ApiParam({ name: 'name', required: true, description: 'The name of the section' })
-    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page' })
     @ApiResponse({ status: 200, description: 'Doctors data' })
     @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
     @ApiHeader({
@@ -56,8 +53,8 @@ export class DoctorController {
             example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         }
     })
-    async findAll(@Param('name') name: string, @Query() paginationDto: PaginationDto) {
-        return this.DoctorService.getDoctors(name, paginationDto);
+    async findAll(@Param('name') name: string) {
+        return this.DoctorService.getDoctors(name);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
