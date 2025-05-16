@@ -8,6 +8,8 @@ import { SubjectSchema } from "../subject/models/subject.schema";
 import { StudentSubjectsSchema } from "./models/studentSubjects.schema";
 import { PaymentSchema } from "../payments/models/payment.schema";
 import { DegreeSchema } from "../degree/models/degree.schema";
+import { DoctorSchema } from "../doctor/models/doctor.schema";
+import { YearSchema } from "../year/models/year.schema";
 
 @Module({
     imports: [
@@ -17,7 +19,9 @@ import { DegreeSchema } from "../degree/models/degree.schema";
             { name: 'Section', schema: SectionSchema },
             { name: 'Subject', schema: SubjectSchema },
             { name: 'Payment', schema: PaymentSchema },
-            { name: 'Degree', schema: DegreeSchema }
+            { name: 'Degree', schema: DegreeSchema },
+            { name: 'Doctor', schema: DoctorSchema },
+            { name: 'Year', schema: YearSchema }
         ])
     ],
     controllers: [StudentController],

@@ -219,4 +219,25 @@ export class StudentController {
         return this.StudentService.removeSubjectFromStudent(studentId, subjectId);
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.EMPLOYEE)
+    @Get('getStatistics/:name')
+    @ApiOperation({ summary: 'Get statistics' })
+    @ApiParam({ name: 'name', required: true, description: 'The name of the section' })
+    @ApiResponse({ status: 200, description: 'Statistics data' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getStatistics(@Param('name') name: string) {
+        return this.StudentService.getSectionStatistics(name);
+    }
+
 }

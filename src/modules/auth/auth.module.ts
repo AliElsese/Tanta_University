@@ -14,6 +14,7 @@ import { DoctorService } from "../doctor/services/doctor.service";
 import { StudentService } from "../student/services/student.service";
 import { StudentSubjectsSchema } from "../student/models/studentSubjects.schema";
 import { PaymentSchema } from "../payments/models/payment.schema";
+import { YearSchema } from "../year/models/year.schema";
 
 @Module({
     imports: [
@@ -25,7 +26,8 @@ import { PaymentSchema } from "../payments/models/payment.schema";
             { name: 'Section', schema: SectionSchema },
             { name: 'Subject', schema: SubjectSchema },
             { name: 'Payment', schema: PaymentSchema },
-            { name: 'Degree', schema: DegreeSchema }
+            { name: 'Degree', schema: DegreeSchema },
+            { name: 'Year', schema: YearSchema }
         ]),
     ],
     controllers: [AuthController],

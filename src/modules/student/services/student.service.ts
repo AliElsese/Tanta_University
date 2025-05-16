@@ -12,6 +12,9 @@ import { StudentSubjects } from "../models/studentSubjects.schema";
 import { Payment } from "src/modules/payments/models/payment.schema";
 import { Degree } from "src/modules/degree/models/degree.schema";
 import { AddSubjectToStudentDto } from "../dtos/addSubjectToStudent.dto";
+import { Doctor } from "src/modules/doctor/models/doctor.schema";
+import { Year } from "src/modules/year/models/year.schema";
+import { Grade } from "src/modules/degree/enums/grade.enum";
 
 export interface PopulatedYear {
     _id: mongoose.Types.ObjectId;
@@ -35,6 +38,12 @@ export class StudentService {
         @InjectModel(Subject.name)
         private SubjectModel: mongoose.Model<Subject>,
 
+        @InjectModel(Doctor.name)
+        private DoctorModel: mongoose.Model<Doctor>,
+
+        @InjectModel(Year.name)
+        private YearModel: mongoose.Model<Year>,
+
         @InjectModel(StudentSubjects.name)
         private StudentSubjectsModel: mongoose.Model<StudentSubjects>,
 
@@ -42,7 +51,7 @@ export class StudentService {
         private PaymentModel: mongoose.Model<Payment>,
 
         @InjectModel(Degree.name)
-        private DegreeModel: mongoose.Model<Degree>
+        private DegreeModel: mongoose.Model<Degree>,
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -375,5 +384,78 @@ export class StudentService {
         return {
             message: 'Subject removed successfully.'
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async getSectionStatistics(sectionName: string) {
+        const section = await this.SectionModel.findOne({ name: sectionName });
+        
+        const subjects = await this.SubjectModel.find({ sectionId: section._id });
+        const students = await this.StudentModel.find({ sectionId: section._id });
+        const doctors = await this.DoctorModel.find({ sectionId: section._id });
+
+        const years = await this.YearModel.find({ sectionId: section._id });
+        if(!years || years.length === 0) {
+            return {
+                message: 'Statistics data.',
+                data: {
+                    subjectsNumber: subjects.length,
+                    studentsNumber: students.length,
+                    doctorsNumber: doctors.length,
+                    yearsData: []
+                }
+            }
+        }
+
+        const yearsData = await Promise.all(years.map(async (year) => {
+            return {
+                failed: await this.getFailedStudentsNumber(year._id),
+                pass: await this.getPassStudentsNumber(year._id),
+                good: await this.getGoodStudentsNumber(year._id),
+                veryGood: await this.getVeryGoodStudentsNumber(year._id),
+                excellent: await this.getExcellentStudentsNumber(year._id),
+            };
+        }))
+
+        return {
+            message: 'Statistics data.',
+            data: {
+                subjectsNumber: subjects.length,
+                studentsNumber: students.length,
+                doctorsNumber: doctors.length,
+                yearsData
+            }
+        }
+    }
+
+    async getFailedStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Fail });
+
+        return students.length;
+    }
+
+    async getPassStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Pass });
+
+        return students.length;
+    }
+
+    async getGoodStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Good });
+
+        return students.length;
+    }
+
+    async getVeryGoodStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.VeryGood });
+
+        return students.length;
+    }
+
+    async getExcellentStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Excellent });
+
+        return students.length;
     }
 }
