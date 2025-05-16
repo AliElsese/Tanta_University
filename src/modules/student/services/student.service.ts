@@ -410,11 +410,14 @@ export class StudentService {
 
         const yearsData = await Promise.all(years.map(async (year) => {
             return {
-                failed: await this.getFailedStudentsNumber(year._id),
-                pass: await this.getPassStudentsNumber(year._id),
-                good: await this.getGoodStudentsNumber(year._id),
-                veryGood: await this.getVeryGoodStudentsNumber(year._id),
-                excellent: await this.getExcellentStudentsNumber(year._id),
+                name: year.name,
+                students: {
+                    failed: await this.getFailedStudentsNumber(year._id),
+                    pass: await this.getPassStudentsNumber(year._id),
+                    good: await this.getGoodStudentsNumber(year._id),
+                    veryGood: await this.getVeryGoodStudentsNumber(year._id),
+                    excellent: await this.getExcellentStudentsNumber(year._id),
+                }
             };
         }))
 
