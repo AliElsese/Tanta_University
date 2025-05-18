@@ -417,9 +417,14 @@ export class StudentService {
                     good: await this.getGoodStudentsNumber(year._id),
                     veryGood: await this.getVeryGoodStudentsNumber(year._id),
                     excellent: await this.getExcellentStudentsNumber(year._id),
+                },
+                payments: {
+                    isPaid: await this.getPaidStudentsNumber(year._id),
+                    notPaid: await this.getNotPaidStudentsNumber(year._id)
                 }
             };
         }))
+
 
         return {
             message: 'Statistics data.',
@@ -427,7 +432,7 @@ export class StudentService {
                 subjectsNumber: subjects.length,
                 studentsNumber: students.length,
                 doctorsNumber: doctors.length,
-                yearsData
+                yearsData,
             }
         }
     }
@@ -458,6 +463,18 @@ export class StudentService {
 
     async getExcellentStudentsNumber(yearId: any) {
         const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Excellent });
+
+        return students.length;
+    }
+
+    async getPaidStudentsNumber(yearId: any) {
+        const students = await this.PaymentModel.find({ yearId: new mongoose.Types.ObjectId(yearId), isPaid: true });
+
+        return students.length;
+    }
+
+    async getNotPaidStudentsNumber(yearId: any) {
+        const students = await this.PaymentModel.find({ yearId: new mongoose.Types.ObjectId(yearId), isPaid: false });
 
         return students.length;
     }
