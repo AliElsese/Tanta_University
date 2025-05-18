@@ -119,4 +119,25 @@ export class DoctorController {
     async deleteOne(@Param() doctorId: string) {
         return this.DoctorService.removeDoctor(doctorId);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.DOCTOR)
+    @Get('getStatistics/:id')
+    @ApiOperation({ summary: 'Get statistics' })
+    @ApiParam({ name: 'id', required: true, description: 'The id of the doctor' })
+    @ApiResponse({ status: 200, description: 'Statistics data' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getStatistics(@Param('id') doctorId: string) {
+        return this.DoctorService.getDoctorSubjectsStatistics(doctorId);
+    }
 }

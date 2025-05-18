@@ -7,6 +7,9 @@ import mongoose from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import * as bcrypt from 'bcrypt';
 import { Section } from "src/modules/section/models/section.schema";
+import { Subject } from "src/modules/subject/models/subject.schema";
+import { Degree } from "src/modules/degree/models/degree.schema";
+import { Grade } from "src/modules/degree/enums/grade.enum";
 
 @Injectable()
 export class DoctorService {
@@ -15,7 +18,13 @@ export class DoctorService {
         private DoctorModel: mongoose.Model<Doctor>,
 
         @InjectModel(Section.name)
-        private SectionModel: mongoose.Model<Section>
+        private SectionModel: mongoose.Model<Section>,
+
+        @InjectModel(Subject.name)
+        private SubjectModel: mongoose.Model<Subject>,
+
+        @InjectModel(Degree.name)
+        private DegreeModel: mongoose.Model<Degree>,
     ) {}
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -132,5 +141,72 @@ export class DoctorService {
         return {
             message: 'Doctor deleted successfully.'
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async getDoctorSubjectsStatistics(doctorId: string) {
+        const doctor = await this.DoctorModel.findById(new mongoose.Types.ObjectId(doctorId));
+        
+        const subjects = await this.SubjectModel.find({ doctorId: doctor._id });
+        if(!subjects || subjects.length === 0) {
+            return {
+                message: 'Statistics data.',
+                data: {
+                    subjectsData: []
+                }
+            }
+        }
+
+        const subjectsData = await Promise.all(subjects.map(async (subject) => {
+            return {
+                name: subject.name,
+                students: {
+                    failed: await this.getFailedStudentsNumber(subject._id),
+                    pass: await this.getPassStudentsNumber(subject._id),
+                    good: await this.getGoodStudentsNumber(subject._id),
+                    veryGood: await this.getVeryGoodStudentsNumber(subject._id),
+                    excellent: await this.getExcellentStudentsNumber(subject._id),
+                }
+            };
+        }))
+
+
+        return {
+            message: 'Statistics data.',
+            data: {
+                subjectsData
+            }
+        }
+    }
+
+    async getFailedStudentsNumber(subject: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subject), grade: Grade.Fail });
+
+        return students.length;
+    }
+
+    async getPassStudentsNumber(subject: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subject), grade: Grade.Pass });
+
+        return students.length;
+    }
+
+    async getGoodStudentsNumber(subject: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subject), grade: Grade.Good });
+
+        return students.length;
+    }
+
+    async getVeryGoodStudentsNumber(subject: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subject), grade: Grade.VeryGood });
+
+        return students.length;
+    }
+
+    async getExcellentStudentsNumber(subject: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subject), grade: Grade.Excellent });
+
+        return students.length;
     }
 }
