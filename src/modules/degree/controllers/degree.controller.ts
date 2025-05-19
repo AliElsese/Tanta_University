@@ -126,4 +126,29 @@ export class DegreeController {
     ) {
         return this.DegreeService.studentYearDegrees(studentId, yearId);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.EMPLOYEE)
+    @Get('passStudentToNextYear/:yearId/:nextYearId')
+    @ApiOperation({ summary: 'Pass Students' })
+    @ApiParam({ name: 'yearId', required: true, description: 'The id of the year' })
+    @ApiParam({ name: 'nextYearId', required: true, description: 'The id of the next year' })
+    @ApiResponse({ status: 200, description: 'Passed data' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getStudentStatistics(
+        @Param('yearId') yearId: string,
+        @Param('nextYearId') nextYearId: string
+    ) {
+        return this.DegreeService.passedStudents(yearId, nextYearId);
+    }
 }

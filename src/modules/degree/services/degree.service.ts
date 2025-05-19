@@ -2,12 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { NewDegreeDto } from "../dtos/newDegree.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Degree } from "../models/degree.schema";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { CustomError } from "src/modules/shared/helpers/customError";
 import { Subject } from "src/modules/subject/models/subject.schema";
 import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
 import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 import { DegreeCalcService } from "src/modules/shared/services/degreeCalc.service";
+import { Student } from "src/modules/student/models/student.schema";
 
 export interface PopulatedStudent {
     id: string;
@@ -27,6 +28,9 @@ export class DegreeService {
 
         @InjectModel(Subject.name)
         private SubjectModel: mongoose.Model<Subject>,
+
+        @InjectModel(Student.name)
+        private StudentModel: mongoose.Model<Student>,
 
         private DegreeCalcService: DegreeCalcService
     ) {}
@@ -181,5 +185,58 @@ export class DegreeService {
             yearGba,
             yearGrade
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async passedStudents(yearId: string, nextYearId: string) {
+        const studentsIds = await this.StudentModel.find({ yearIds: { $in: [new mongoose.Types.ObjectId(yearId)] } }).select({ _id: 1 });
+
+        const yearsGba = await Promise.all(studentsIds.map(async (student) => {
+            return {
+                studentId: student._id.toString(),
+                yearGba: await this.studentYearGba((student._id).toString(), yearId)
+            };
+        }))
+
+        const successStudents = yearsGba.filter((student) => {
+            return Number(student.yearGba) > 2
+        }).map((student) => student.studentId);
+
+        await this.StudentModel.updateMany(
+            {
+                _id: { $in: successStudents.map(id => new mongoose.Types.ObjectId(id)) },
+                yearIds: { $ne: new mongoose.Types.ObjectId(nextYearId) }
+            },
+            {
+                $addToSet: { yearIds: new mongoose.Types.ObjectId(nextYearId) }
+            }
+        );
+
+        return {
+            message: 'Students passed successfully.'
+        };
+    }
+
+    async studentYearGba(studentId: string, yearId: string) {
+        const studentDegrees = await this.DegreeModel.find(
+            { studentId: new mongoose.Types.ObjectId(studentId), yearId: new mongoose.Types.ObjectId(yearId) }
+        )
+        .populate<{ subjectId: PopulatedSubject }>('subjectId', { _id: 1, name: 1, term: 1, highestDegree: 1 })
+        .select({ subjectDegree: 1, GBA: 1, grade: 1 })
+
+        let allHighestDegrees = 0;
+        studentDegrees.forEach((degree) => {
+            allHighestDegrees += Number(degree.subjectId.highestDegree)
+        })
+
+        let allStudentDegrees = 0;
+        studentDegrees.forEach((degree) => {
+            allStudentDegrees += Number(degree.subjectDegree)
+        })
+
+        const yearGba = await this.DegreeCalcService.calculateGBA(Number(allHighestDegrees), Number(allStudentDegrees));
+
+        return yearGba
     }
 }
