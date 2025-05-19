@@ -437,6 +437,48 @@ export class StudentService {
         }
     }
 
+    async getFailedStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Fail });
+
+        return students.length;
+    }
+
+    async getPassStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Pass });
+
+        return students.length;
+    }
+
+    async getGoodStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Good });
+
+        return students.length;
+    }
+
+    async getVeryGoodStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.VeryGood });
+
+        return students.length;
+    }
+
+    async getExcellentStudentsNumber(yearId: any) {
+        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Excellent });
+
+        return students.length;
+    }
+
+    async getPaidStudentsNumber(yearId: any) {
+        const students = await this.PaymentModel.find({ yearId: new mongoose.Types.ObjectId(yearId), isPaid: true });
+
+        return students.length;
+    }
+
+    async getNotPaidStudentsNumber(yearId: any) {
+        const students = await this.PaymentModel.find({ yearId: new mongoose.Types.ObjectId(yearId), isPaid: false });
+
+        return students.length;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////
 
     async getStudentStatistics(yearId: string) {
@@ -504,45 +546,7 @@ export class StudentService {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    async getFailedStudentsNumber(yearId: any) {
-        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Fail });
-
-        return students.length;
-    }
-
-    async getPassStudentsNumber(yearId: any) {
-        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Pass });
-
-        return students.length;
-    }
-
-    async getGoodStudentsNumber(yearId: any) {
-        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Good });
-
-        return students.length;
-    }
-
-    async getVeryGoodStudentsNumber(yearId: any) {
-        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.VeryGood });
-
-        return students.length;
-    }
-
-    async getExcellentStudentsNumber(yearId: any) {
-        const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Excellent });
-
-        return students.length;
-    }
-
-    async getPaidStudentsNumber(yearId: any) {
-        const students = await this.PaymentModel.find({ yearId: new mongoose.Types.ObjectId(yearId), isPaid: true });
-
-        return students.length;
-    }
-
-    async getNotPaidStudentsNumber(yearId: any) {
-        const students = await this.PaymentModel.find({ yearId: new mongoose.Types.ObjectId(yearId), isPaid: false });
-
-        return students.length;
+    async sendStudentsToNextYear() {
+        
     }
 }

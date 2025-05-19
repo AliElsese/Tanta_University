@@ -242,7 +242,7 @@ export class StudentController {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    @Roles(UserRole.EMPLOYEE)
+    @Roles(UserRole.STUDENT)
     @Get('getStudentStatistics/:id')
     @ApiOperation({ summary: 'Get statistics' })
     @ApiParam({ name: 'id', required: true, description: 'The id of the year' })
