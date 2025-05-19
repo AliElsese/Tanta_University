@@ -9,6 +9,7 @@ import { StudentYearDegreesDto } from "../dtos/yearDegree.dto";
 import { UpdateDegreeDto } from "../dtos/updateDegree.dto";
 import { DegreeCalcService } from "src/modules/shared/services/degreeCalc.service";
 import { Student } from "src/modules/student/models/student.schema";
+import { StudentSubjects } from "src/modules/student/models/studentSubjects.schema";
 
 export interface PopulatedStudent {
     id: string;
@@ -31,6 +32,9 @@ export class DegreeService {
 
         @InjectModel(Student.name)
         private StudentModel: mongoose.Model<Student>,
+
+        @InjectModel(StudentSubjects.name)
+        private StudentSubjectsModel: mongoose.Model<StudentSubjects>,
 
         private DegreeCalcService: DegreeCalcService
     ) {}
@@ -213,8 +217,38 @@ export class DegreeService {
             }
         );
 
+        // Get all subjects for next year
+        const nextYearSubjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(nextYearId) });
+
+        // Add subjects to StudentSubjects for each passed student
+        const studentSubjectsToCreate = [];
+        for (const studentId of successStudents) {
+            // Get existing subjects for this student in next year
+            const existingSubjects = await this.StudentSubjectsModel.find({
+                studentId: new mongoose.Types.ObjectId(studentId),
+                yearId: new mongoose.Types.ObjectId(nextYearId)
+            }).select('subjectId');
+
+            const existingSubjectIds = existingSubjects.map(sub => sub.subjectId.toString());
+
+            // Only add subjects that don't already exist for this student
+            for (const subject of nextYearSubjects) {
+                if (!existingSubjectIds.includes(subject._id.toString())) {
+                    studentSubjectsToCreate.push({
+                        studentId: new mongoose.Types.ObjectId(studentId),
+                        yearId: new mongoose.Types.ObjectId(nextYearId),
+                        subjectId: subject._id
+                    });
+                }
+            }
+        }
+
+        if (studentSubjectsToCreate.length > 0) {
+            await this.StudentSubjectsModel.insertMany(studentSubjectsToCreate);
+        }
+
         return {
-            message: 'Students passed successfully.'
+            message: 'Students passed successfully and next year subjects added.'
         };
     }
 

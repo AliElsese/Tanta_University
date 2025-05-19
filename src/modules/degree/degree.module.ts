@@ -6,12 +6,15 @@ import { DegreeService } from "./services/degree.service";
 import { SubjectSchema } from "../subject/models/subject.schema";
 import { DegreeCalcService } from "src/modules/shared/services/degreeCalc.service";
 import { StudentSchema } from "../student/models/student.schema";
+import { StudentSubjectsSchema } from "../student/models/studentSubjects.schema";
+
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: 'Degree', schema: DegreeSchema },
             { name: 'Subject', schema: SubjectSchema },
-            { name: 'Student', schema: StudentSchema }
+            { name: 'Student', schema: StudentSchema },
+            { name: 'StudentSubjects', schema: StudentSubjectsSchema },
         ])
     ],
     controllers: [DegreeController],
