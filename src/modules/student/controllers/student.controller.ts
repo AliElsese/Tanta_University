@@ -240,4 +240,24 @@ export class StudentController {
         return this.StudentService.getSectionStatistics(name);
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Roles(UserRole.STUDENT)
+    @Get('getStudentStatistics/:id')
+    @ApiOperation({ summary: 'Get statistics' })
+    @ApiParam({ name: 'id', required: true, description: 'The id of the year' })
+    @ApiResponse({ status: 200, description: 'Statistics data' })
+    @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+    @ApiHeader({
+        name: 'Authorization',
+        description: 'Bearer token for authentication',
+        required: true,
+        schema: {
+            type: 'string',
+            example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        }
+    })
+    async getStudentStatistics(@Param('id') yearId: string) {
+        return this.StudentService.getStudentStatistics(yearId);
+    }
 }

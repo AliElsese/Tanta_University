@@ -437,6 +437,41 @@ export class StudentService {
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    async getStudentStatistics(yearId: string) {
+        const subjects = await this.SubjectModel.find({ yearId: new mongoose.Types.ObjectId(yearId) });
+        if(!subjects || subjects.length === 0) {
+            return {
+                message: 'Statistics data.',
+                data: {
+                    subjectsData: []
+                }
+            }
+        }
+
+        const subjectsData = await Promise.all(subjects.map(async (subject) => {
+            return {
+                name: subject.name,
+                students: {
+                    failed: await this.getFailedStudentsNumber(subject._id),
+                    pass: await this.getPassStudentsNumber(subject._id),
+                    good: await this.getGoodStudentsNumber(subject._id),
+                    veryGood: await this.getVeryGoodStudentsNumber(subject._id),
+                    excellent: await this.getExcellentStudentsNumber(subject._id),
+                }
+            };
+        }))
+
+
+        return {
+            message: 'Statistics data.',
+            data: {
+                subjectsData
+            }
+        }
+    }
+
     async getFailedStudentsNumber(yearId: any) {
         const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Fail });
 
