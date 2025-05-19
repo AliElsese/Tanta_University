@@ -454,11 +454,11 @@ export class StudentService {
             return {
                 name: subject.name,
                 students: {
-                    failed: await this.getFailedStudentsNumber(subject._id),
-                    pass: await this.getPassStudentsNumber(subject._id),
-                    good: await this.getGoodStudentsNumber(subject._id),
-                    veryGood: await this.getVeryGoodStudentsNumber(subject._id),
-                    excellent: await this.getExcellentStudentsNumber(subject._id),
+                    failed: await this.getFailedStudentsNumberBySubject(subject._id),
+                    pass: await this.getPassStudentsNumberBySubject(subject._id),
+                    good: await this.getGoodStudentsNumberBySubject(subject._id),
+                    veryGood: await this.getVeryGoodStudentsNumberBySubject(subject._id),
+                    excellent: await this.getExcellentStudentsNumberBySubject(subject._id),
                 }
             };
         }))
@@ -471,6 +471,38 @@ export class StudentService {
             }
         }
     }
+
+    async getFailedStudentsNumberBySubject(subjectId: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId), grade: Grade.Fail });
+
+        return students.length;
+    }
+
+    async getPassStudentsNumberBySubject(subjectId: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId), grade: Grade.Pass });
+
+        return students.length;
+    }
+
+    async getGoodStudentsNumberBySubject(subjectId: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId), grade: Grade.Good });
+
+        return students.length;
+    }
+
+    async getVeryGoodStudentsNumberBySubject(subjectId: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId), grade: Grade.VeryGood });
+
+        return students.length;
+    }
+
+    async getExcellentStudentsNumberBySubject(subjectId: any) {
+        const students = await this.DegreeModel.find({ subjectId: new mongoose.Types.ObjectId(subjectId), grade: Grade.Excellent });
+
+        return students.length;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
 
     async getFailedStudentsNumber(yearId: any) {
         const students = await this.DegreeModel.find({ yearId: new mongoose.Types.ObjectId(yearId), grade: Grade.Fail });
