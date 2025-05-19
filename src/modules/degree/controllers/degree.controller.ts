@@ -130,7 +130,7 @@ export class DegreeController {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Roles(UserRole.EMPLOYEE)
-    @Get('passStudentToNextYear/:yearId/:nextYearId')
+    @Post('passStudentToNextYear/:yearId/:nextYearId')
     @ApiOperation({ summary: 'Pass Students' })
     @ApiParam({ name: 'yearId', required: true, description: 'The id of the year' })
     @ApiParam({ name: 'nextYearId', required: true, description: 'The id of the next year' })
